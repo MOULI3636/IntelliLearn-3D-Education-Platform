@@ -1,67 +1,79 @@
-🌐 EduWeb – AI-Powered Digital Learning Platform
+### 🌐 EduWeb – AI-Powered Digital Learning Platform
 
-EduWeb is an AI-driven education ecosystem combining a Smart Library, AI Recommendation Engine, 3D Virtual Lab, Interactive Classroom, and Skill-Based Courses in one unified platform. It delivers personalized learning, immersive simulations, and smarter academic support.
+EduWeb is an AI-driven education ecosystem combining a Smart Library, AI Recommendation Engine, 3D Virtual Lab, Interactive Classroom, and Skill-Based Courses into one unified platform. It delivers personalized learning, immersive simulations, and smart academic support for students and educators.
 
-🚀 Key Features
-🔹 AI Recommendation System
+### 🚀 Key Features
+### 🔹 AI Recommendation System
 
-Suggests books, courses, quizzes, and simulations
+Suggests books, courses, quizzes, and 3D simulations
 
 Learner profiling for personalized learning paths
 
-🔹 Smart Digital Library
+### 🔹 Smart Digital Library
 
 Searchable books, PDFs, notes, and videos
 
-AI summaries, bookmarks, and history
+AI summaries, bookmarks, reading history, and quick filters
 
-🔹 3D Virtual Lab
+### 🔹 3D Virtual Lab
 
-Physics, Chemistry, Biology simulations
+Physics, Chemistry, and Biology simulations
 
 Built with Three.js/WebGL for interactive experiments
 
-🔹 Interactive Classroom (OpenBoard)
+Enables virtual hands-on learning without physical lab equipment
 
-Real-time whiteboard, chats, quizzes
+### 🔹 Interactive Classroom (OpenBoard)
 
-Automatically saves board content to Library
+Real-time whiteboard teaching, chats, and quizzes
 
-🔹 Courses & Skill Modules
+Automatically saves whiteboard content to the Library
+
+Enhances teacher–student collaboration
+
+### 🔹 Courses & Skill Modules
 
 Topic-wise videos, assignments, quizzes, and progress tracking
 
-🧠 Why EduWeb is Unique
+AI suggests next lessons based on performance
 
-Combines AI + 3D Visualization + Learning Tools
+### 🧠 Why EduWeb is Unique
 
-Seamless flow: Library ↔ Courses ↔ Virtual Lab ↔ Classroom
+Integrates AI + 3D Visualization + Learning Tools into one ecosystem
 
-Functions as a complete digital education ecosystem
+Smooth flow between modules:
+Library ↔ Courses ↔ Virtual Lab ↔ Classroom
 
-🛠️ Tech Stack
+Designed as a complete digital education ecosystem, not just a tool
 
-React, Node.js, Firebase, Three.js,
-WebGL, MongoDB, Python ML
+### 🛠️ Tech Stack
 
-🎯 Target Audience
+Frontend: HTML, CSS, JavaScript
+
+3D Tech: Three.js
+
+Database: MongoDB 
+
+AI/ML: Python, Scikit-Learn, NLP models
+
+### 🎯 Target Audience
 
 Schools & Colleges
 
-Online learning platforms
+EdTech platforms
 
-STEM education institutes
+STEM learning institutes
 
-Students preparing for exams
+Students preparing for competitive exams
 
 Teachers using digital tools
 
-💡 Future Enhancements
+### 💡 Future Enhancements
 
 Voice-based AI tutoring
 
-AR/VR headset support
+AR/VR headset compatibility
 
-Personal student analytics dashboard
+Detailed learner analytics dashboard
 
-Automatic note generation from classes
+Automatic note generation from classroom sessions
