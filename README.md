@@ -37,11 +37,12 @@ Combines AI + 3D Visualization + Learning Tools
 
 Seamless flow: Library ↔ Courses ↔ Virtual Lab ↔ Classroom
 
-Works as a complete digital education ecosystem
+Functions as a complete digital education ecosystem
 
 🛠️ Tech Stack
 
-React, Node.js, Firebase, Three.js, WebGL, MongoDB, Python ML
+React, Node.js, Firebase, Three.js,
+WebGL, MongoDB, Python ML
 
 🎯 Target Audience
 
@@ -53,7 +54,7 @@ STEM education institutes
 
 Students preparing for exams
 
-Teachers needing smart digital tools
+Teachers using digital tools
 
 💡 Future Enhancements
 
