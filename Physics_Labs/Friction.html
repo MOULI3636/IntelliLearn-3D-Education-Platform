@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Friction Simulation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background-color: #ffffff;
+      color: #333;
+      margin: 0;
+      padding: 15px;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .header {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      color: #1a237e;
+      margin: 0;
+      font-size: 1.8rem;
+      text-align: center;
+      flex-grow: 1;
+    }
+
+    .back-btn, .theory-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .back-btn {
+      background-color: #4caf50;
+      margin-right: 10px;
+    }
+
+    .back-btn:hover {
+      background-color: #388e3c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .theory-btn {
+      background-color: #2196f3;
+    }
+
+    .theory-btn:hover {
+      background-color: #1976d2;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .main-container {
+      display: flex;
+      width: 100%;
+      max-width: 1000px;
+      gap: 20px;
+    }
+
+    .simulation-container {
+      position: relative;
+      width: 70%;
+      height: 400px;
+      background-color: #f9f9f9;
+      border: 3px solid #4caf50;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    }
+
+    #table {
+      position: absolute;
+      bottom: 120px;
+      left: 0;
+      width: 80%;
+      height: 20px;
+      background-color: #795548;
+      border-bottom: 4px solid #4e342e;
+      z-index: 2;
+    }
+
+    .table-leg {
+      position: absolute;
+      bottom: -80px;
+      width: 15px;
+      height: 80px;
+      background-color: #5d4037;
+    }
+
+    .table-leg.left {
+      left: 20px;
+    }
+
+    .table-leg.right {
+      right: 60px;
+    }
+
+    #fixing-rod {
+      position: absolute;
+      width: 6px;
+      height: 70px;
+      background-color: #9e9e9e;
+      border: 1px solid #616161;
+      top: 130px;
+      left: 80%;
+      border-radius: 3px;
+      z-index: 3;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    }
+
+    #block1, #block2 {
+      position: absolute;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 6px;
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    #block1 {
+      background-color: #c62828;
+      cursor: grab;
+    }
+
+    #block1:hover {
+      transform: scale(1.05);
+    }
+
+    #block2 {
+      background-color: #283593;
+    }
+
+    #pulley {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-color: #757575;
+      border: 3px solid #424242;
+      border-radius: 50%;
+      top: 165px;
+      left: 80%;
+      transform: translateY(-50%);
+      z-index: 5;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    .rope {
+      position: absolute;
+      background-color: #212121;
+      z-index: 4;
+    }
+
+    .controls-and-data {
+      display: flex;
+      flex-direction: column;
+      width: 30%;
+      background-color: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 2px solid #4caf50;
+      height: 400px;
+      overflow-y: auto;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    .data-display {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #cfd8dc;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #4caf50;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1a237e;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+      height: 8px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      outline: none;
+      -webkit-box-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4caf50;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    #startBtn {
+      background-color: #2e7d32;
+    }
+
+    #startBtn:hover {
+      background-color: #1b5e20;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    #resetBtn {
+      background-color: #d84315;
+    }
+
+    #resetBtn:hover {
+      background-color: #bf360c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .data-display h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: #1a237e;
+      border-bottom: 2px solid #4caf50;
+      padding-bottom: 8px;
+    }
+
+    .data-display p {
+      margin: 0 0 10px 0;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .data-display span {
+      font-weight: bold;
+      color: #0d47a1;
+      background: #e3f2fd;
+      padding: 4px 8px;
+      border-radius: 4px;
+      min-width: 60px;
+      display: inline-block;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    #status-value.at-rest {
+      color: #d84315;
+    }
+    #status-value.moving {
+      color: #2e7d32;
+    }
+    #status-value.stopped {
+      color: #455a64;
+    }
+
+    .theory-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .theory-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 700px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      border: 3px solid #4caf50;
+    }
+
+    .theory-content h2 {
+      color: #1a237e;
+      margin-top: 0;
+      border-bottom: 2px solid #4caf50;
+      padding-bottom: 10px;
+    }
+
+    .theory-content h3 {
+      color: #283593;
+      margin-top: 20px;
+    }
+
+    .theory-content p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .theory-content ul {
+      padding-left: 20px;
+    }
+
+    .theory-content li {
+      margin-bottom: 8px;
+    }
+
+    .close-btn {
+      float: right;
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .close-btn:hover {
+      background: #d32f2f;
+    }
+
+    .formula {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      border-left: 4px solid #4caf50;
+    }
+
+    .key-concept {
+      background-color: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #2196f3;
+    }
+
+    .force-diagram {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .force-diagram img {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .explanation {
+      background-color: #e8f5e9;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #4caf50;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <!-- <button class="back-btn">⬅️ Back to Menu</button> -->
+    <h1>Interactive Friction Simulation 🔬</h1>
+    <button class="theory-btn">📚 Theory</button>
+  </div>
+
+  <div class="main-container">
+    <div class="simulation-container">
+      <div id="table">
+        <div class="table-leg left"></div>
+        <div class="table-leg right"></div>
+      </div>
+
+      <div id="fixing-rod"></div>
+
+      <div id="pulley"></div>
+      <div id="block1" title="Mass on Table (m₁)">m₁</div>
+      <div id="rope-h" class="rope"></div>
+      <div id="rope-v" class="rope"></div>
+      <div id="block2" title="Hanging Mass (m₂)">m₂</div>
+    </div>
+
+    <div class="controls-and-data">
+      <div class="controls">
+        <div class="control-group">
+          <label for="m1-slider">Mass on Table (m₁): <span id="m1-value">5.0</span> kg</label>
+          <input type="range" id="m1-slider" min="1" max="20" value="5" step="0.1" />
+        </div>
+        <div class="control-group">
+          <label for="m2-slider">Hanging Mass (m₂): <span id="m2-value">2.0</span> kg</label>
+          <input type="range" id="m2-slider" min="0.1" max="10" value="2" step="0.1" />
+        </div>
+        <div class="control-group">
+          <label for="mus-slider">Static Friction Coeff. (μₛ): <span id="mus-value">0.50</span></label>
+          <input type="range" id="mus-slider" min="0.05" max="1.0" value="0.5" step="0.01" />
+        </div>
+        <div class="control-group">
+          <label for="muk-slider">Kinetic Friction Coeff. (μₖ): <span id="muk-value">0.30</span></label>
+          <input type="range" id="muk-slider" min="0.05" max="1.0" value="0.3" step="0.01" />
+        </div>
+
+        <div class="buttons">
+          <button id="startBtn">▶️ Run Simulation</button>
+          <button id="resetBtn">🔄 Reset</button>
+        </div>
+      </div>
+
+      <div class="data-display">
+        <h2>Live Data</h2>
+        <p>Status: <span id="status-value" class="at-rest">At Rest</span></p>
+        <p>Force to overcome (Tension): <span id="tension-value">0.00</span> N</p>
+        <p>Max Static Friction (ƒₛ,ₘₐₓ): <span id="static-friction-value">0.00</span> N</p>
+        <p>Kinetic Friction (ƒₖ): <span id="kinetic-friction-value">0.00</span> N</p>
+        <p>Acceleration (a): <span id="accel-value">0.00</span> m/s²</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="theory-modal" id="theoryModal">
+    <div class="theory-content">
+      <button class="close-btn" id="closeTheory">X</button>
+      <h2>Friction Theory</h2>
+      
+      <div class="key-concept">
+        <h3>What is Friction?</h3>
+        <p>Friction is a force that opposes the relative motion or tendency of such motion between two surfaces in contact. It always acts parallel to the surfaces in contact and opposite to the direction of motion or intended motion.</p>
+      </div>
+      
+      <h3>Types of Friction</h3>
+      <ul>
+        <li><strong>Static Friction:</strong> The friction that exists between surfaces when there is no relative motion between them.</li>
+        <li><strong>Kinetic Friction:</strong> The friction that exists between surfaces when they are in relative motion.</li>
+      </ul>
+      
+      <div class="formula">
+        <h3>Friction Formulas</h3>
+        <p><strong>Maximum Static Friction:</strong> ƒₛ,ₘₐₓ = μₛ × N</p>
+        <p><strong>Kinetic Friction:</strong> ƒₖ = μₖ × N</p>
+        <p>Where:</p>
+        <ul>
+          <li>μₛ = coefficient of static friction</li>
+          <li>μₖ = coefficient of kinetic friction</li>
+          <li>N = normal force (equal to weight for horizontal surfaces)</li>
+        </ul>
+      </div>
+      
+      <div class="explanation">
+        <h3>How This Simulation Works</h3>
+        <p>In this simulation, we have two masses connected by a string over a pulley:</p>
+        <ul>
+          <li>m₁ is on a horizontal surface with friction</li>
+          <li>m₂ is hanging vertically, providing the pulling force</li>
+          <li>The system will only move if the pulling force (m₂g) exceeds the maximum static friction (μₛm₁g)</li>
+          <li>Once moving, the acceleration is determined by the net force: (m₂g - μₖm₁g) divided by the total mass (m₁ + m₂)</li>
+        </ul>
+      </div>
+      
+      <div class="force-diagram">
+        <h3>Force Diagram</h3>
+        <p>Imagine a free-body diagram showing:</p>
+        <ul>
+          <li>For m₁: Weight downward, normal force upward, tension to the right, friction to the left</li>
+          <li>For m₂: Weight downward, tension upward</li>
+        </ul>
+      </div>
+      
+      <h3>Real-World Applications</h3>
+      <ul>
+        <li>Braking systems in vehicles rely on friction</li>
+        <li>Walking is possible due to friction between shoes and ground</li>
+        <li>Friction is essential for writing with pen and paper</li>
+        <li>Many sports involve controlling friction (e.g., skiing, skating)</li>
+      </ul>
+      
+      <div class="key-concept">
+        <h3>Key Points to Remember</h3>
+        <ul>
+          <li>Static friction is generally greater than kinetic friction for the same surfaces</li>
+          <li>Friction depends on the nature of the surfaces, not the area of contact</li>
+          <li>The coefficient of friction is a dimensionless number (no units)</li>
+          <li>Friction can be both helpful (walking, gripping) and problematic (wear and tear, energy loss)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const block1 = document.getElementById("block1");
+      const block2 = document.getElementById("block2");
+      const ropeH = document.getElementById("rope-h");
+      const ropeV = document.getElementById("rope-v");
+      const pulley = document.getElementById("pulley");
+      const table = document.getElementById("table");
+      const theoryModal = document.getElementById("theoryModal");
+      const closeTheoryBtn = document.getElementById("closeTheory");
+      const theoryBtn = document.querySelector(".theory-btn");
+      const backBtn = document.querySelector(".back-btn");
+
+      const m1Slider = document.getElementById("m1-slider");
+      const m2Slider = document.getElementById("m2-slider");
+      const musSlider = document.getElementById("mus-slider");
+      const mukSlider = document.getElementById("muk-slider");
+      const startBtn = document.getElementById("startBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      const m1ValueSpan = document.getElementById("m1-value");
+      const m2ValueSpan = document.getElementById("m2-value");
+      const musValueSpan = document.getElementById("mus-value");
+      const mukValueSpan = document.getElementById("muk-value");
+      const statusValue = document.getElementById("status-value");
+      const tensionValue = document.getElementById("tension-value");
+      const staticFrictionValue = document.getElementById("static-friction-value");
+      const kineticFrictionValue = document.getElementById("kinetic-friction-value");
+      const accelValue = document.getElementById("accel-value");
+
+      const g = 9.81;
+      const PIXELS_PER_METER = 120;
+      const INITIAL_POS_X = 40;
+
+      let m1, m2, mu_s, mu_k;
+      let position = 0;
+      let velocity = 0;
+      let acceleration = 0;
+      let isRunning = false;
+      let animationFrameId;
+      let lastTime;
+
+      // Theory modal functionality
+      theoryBtn.addEventListener("click", () => {
+        theoryModal.style.display = "flex";
+      });
+
+      closeTheoryBtn.addEventListener("click", () => {
+        theoryModal.style.display = "none";
+      });
+
+      window.addEventListener("click", (event) => {
+        if (event.target === theoryModal) {
+          theoryModal.style.display = "none";
+        }
+      });
+
+      // Back button functionality
+      backBtn.addEventListener("click", () => {
+        alert("Back button clicked! You can add navigation logic here.");
+        // Example: window.location.href = "menu.html";
+      });
+
+      // Dynamically adjust block size with mass
+      function updateBlockSizes() {
+        const baseSize1 = 50; // base px
+        const baseSize2 = 45;
+        const scale1 = Math.min(120, baseSize1 + m1 * 3);
+        const scale2 = Math.min(100, baseSize2 + m2 * 4);
+
+        block1.style.width = `${scale1}px`;
+        block1.style.height = `${scale1}px`;
+        block2.style.width = `${scale2}px`;
+        block2.style.height = `${scale2}px`;
+      }
+
+      function updateParameters() {
+        m1 = parseFloat(m1Slider.value);
+        m2 = parseFloat(m2Slider.value);
+        mu_s = parseFloat(musSlider.value);
+        mu_k = parseFloat(mukSlider.value);
+
+        if (mu_k > mu_s) {
+          mu_k = mu_s;
+          mukSlider.value = mu_s;
+        }
+
+        m1ValueSpan.textContent = m1.toFixed(1);
+        m2ValueSpan.textContent = m2.toFixed(1);
+        musValueSpan.textContent = mu_s.toFixed(2);
+        mukValueSpan.textContent = mu_k.toFixed(2);
+
+        updateBlockSizes(); // update visuals
+        resetSimulation();
+      }
+
+      function calculateForces() {
+        const pullingForce = m2 * g;
+        const maxStaticFriction = mu_s * m1 * g;
+        const kineticFriction = mu_k * m1 * g;
+
+        tensionValue.textContent = pullingForce.toFixed(2);
+        staticFrictionValue.textContent = maxStaticFriction.toFixed(2);
+        kineticFrictionValue.textContent = kineticFriction.toFixed(2);
+
+        if (velocity === 0 && pullingForce > maxStaticFriction) {
+          const netForce = pullingForce - kineticFriction;
+          acceleration = netForce / (m1 + m2);
+          setStatus("Moving", "moving");
+        } else if (velocity > 0) {
+          const netForce = pullingForce - kineticFriction;
+          acceleration = netForce > 0 ? netForce / (m1 + m2) : 0;
+        } else {
+          acceleration = 0;
+          setStatus("At Rest", "at-rest");
+        }
+
+        accelValue.textContent = acceleration.toFixed(2);
+      }
+
+      function setStatus(text, className) {
+        statusValue.textContent = text;
+        statusValue.className = className;
+      }
+
+      function resetSimulation() {
+        stopSimulation();
+        position = 0;
+        velocity = 0;
+        lastTime = null;
+        draw();
+        calculateForces();
+        startBtn.disabled = false;
+      }
+
+      function startSimulation() {
+        if (isRunning) return;
+        isRunning = true;
+        startBtn.disabled = true;
+        lastTime = performance.now();
+        animationFrameId = requestAnimationFrame(simulationLoop);
+      }
+
+      function stopSimulation() {
+        isRunning = false;
+        cancelAnimationFrame(animationFrameId);
+      }
+
+      function simulationLoop(currentTime) {
+        if (!isRunning) return;
+
+        const dt = (currentTime - lastTime) / 1000;
+        lastTime = currentTime;
+
+        velocity += acceleration * dt;
+        position += velocity * dt;
+
+        const maxPosition = (pulley.offsetLeft - INITIAL_POS_X - block1.offsetWidth) / PIXELS_PER_METER;
+        if (position >= maxPosition) {
+          position = maxPosition;
+          velocity = 0;
+          acceleration = 0;
+          stopSimulation();
+          setStatus("Stopped", "stopped");
+        }
+
+        draw();
+        animationFrameId = requestAnimationFrame(simulationLoop);
+      }
+
+      function draw() {
+        const block1X = INITIAL_POS_X + position * PIXELS_PER_METER;
+        const block1Y = table.offsetTop - block1.offsetHeight;
+        block1.style.left = `${block1X}px`;
+        block1.style.top = `${block1Y}px`;
+
+        const pulleyCenterX = pulley.offsetLeft + pulley.offsetWidth / 2;
+        const pulleyCenterY = pulley.offsetTop + pulley.offsetHeight / 2;
+        const block2X = pulleyCenterX - block2.offsetWidth / 2;
+        const block2Y = pulleyCenterY + position * PIXELS_PER_METER;
+        block2.style.left = `${block2X}px`;
+        block2.style.top = `${block2Y}px`;
+
+        const ropeHStartX = block1X + block1.offsetWidth;
+        const ropeHStartY = block1Y + block1.offsetHeight / 2;
+        const ropeHEndX = pulleyCenterX;
+        ropeH.style.left = `${ropeHStartX}px`;
+        ropeH.style.top = `${ropeHStartY - 1}px`;
+        ropeH.style.width = `${ropeHEndX - ropeHStartX}px`;
+        ropeH.style.height = `2px`;
+
+        const ropeVStartY = pulleyCenterY;
+        ropeV.style.left = `${pulleyCenterX - 1}px`;
+        ropeV.style.top = `${ropeVStartY}px`;
+        ropeV.style.height = `${block2Y - ropeVStartY}px`;
+        ropeV.style.width = `2px`;
+      }
+
+      m1Slider.addEventListener("input", updateParameters);
+      m2Slider.addEventListener("input", updateParameters);
+      musSlider.addEventListener("input", updateParameters);
+      mukSlider.addEventListener("input", updateParameters);
+      startBtn.addEventListener("click", startSimulation);
+      resetBtn.addEventListener("click", resetSimulation);
+
+      updateParameters();
+    });
+  </script>
+</body>
+</html>

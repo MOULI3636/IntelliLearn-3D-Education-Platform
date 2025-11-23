@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newton's Laws Virtual Simulators</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #333;
+        }
+        canvas {
+            background-color: #000000; /* Changed to black for space */
+            border-radius: 0.5rem;
+            border: 2px solid #8b5a2b;
+        }
+        .control-panel {
+            background-color: #f5eee6;
+            border: 2px solid #8b5a2b;
+            box-shadow: 0 0 15px rgba(139, 90, 43, 0.4);
+            border-radius: 12px;
+        }
+        .wood-button {
+            background: linear-gradient(to bottom, #8b5a2b, #6d4424);
+            color: white;
+            border: 2px solid #5d3a1f;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        .wood-button:hover {
+            background: linear-gradient(to bottom, #9c6b3c, #7d542c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+        }
+        .wood-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .law-card {
+            background-color: #f9f5f0;
+            border: 2px solid #8b5a2b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .theory-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .theory-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #8b5a2b;
+        }
+        .tab-button {
+            background-color: #f5eee6;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px 8px 0 0;
+            padding: 12px 24px;
+            margin-right: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            background-color: #8b5a2b;
+            color: white;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 12px;
+            background: #d7ccc8;
+            border-radius: 10px;
+            outline: none;
+            border: 1px solid #8b5a2b;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #8b5a2b;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #5d3a1f;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: #8b5a2b;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #5d3a1f;
+        }
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+        }
+        .header-title {
+            color: #8b5a2b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight header-title">
+                Newton's Laws of Motion
+            </h1>
+            <p class="mt-2 text-lg text-gray-600">Interactive Educational Simulators</p>
+            
+            <div class="flex justify-center space-x-4 mt-6">
+                <!-- <button id="topic-btn" class="wood-button">
+                    <i class="fas fa-book mr-2"></i> Topics
+                </button> -->
+                <button id="theory-btn" class="wood-button">
+                    <i class="fas fa-graduation-cap mr-2"></i> Theory
+                </button>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="mb-8 flex justify-center">
+            <div class="flex">
+                <button onclick="changeTab(0)" class="tab-button active">
+                    1st Law: Inertia
+                </button>
+                <button onclick="changeTab(1)" class="tab-button">
+                    2nd Law: F = ma
+                </button>
+                <button onclick="changeTab(2)" class="tab-button">
+                    3rd Law: Action-Reaction
+                </button>
+            </div>
+        </div>
+
+        <!-- Simulator Content -->
+        <div id="simulators-container">
+            <!-- Simulator 1: Newton's First Law -->
+            <div id="sim-1" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-2">
+                        <canvas id="canvas1" width="800" height="500"></canvas>
+                    </div>
+                    <div class="control-panel p-6">
+                        <h2 class="text-2xl font-bold mb-2 text-[#8b5a2b]">Law of Inertia</h2>
+                        <p class="text-gray-700 mb-4">An object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</p>
+                        
+                        <div class="flex flex-col space-y-4 mb-6">
+                            <button id="thrust-btn" class="wood-button">
+                                <i class="fas fa-rocket mr-2"></i> Apply Forward Thrust
+                            </button>
+                            <button id="reset-btn-1" class="wood-button">
+                                <i class="fas fa-redo mr-2"></i> Reset
+                            </button>
+                        </div>
+                        
+                        <div class="p-4 bg-white rounded-lg space-y-2 border border-[#8b5a2b]">
+                            <div class="flex justify-between text-gray-700">
+                                <span>Initial Velocity:</span>
+                                <span id="initial-velocity-display-1" class="font-bold text-[#8b5a2b]">0.00 px/frame</span>
+                            </div>
+                            <div class="flex justify-between text-gray-700">
+                                <span>Applied Force:</span>
+                                <span id="applied-force-display-1" class="font-bold text-[#8b5a2b]">0 N</span>
+                            </div>
+                            <div class="flex justify-between text-gray-700">
+                                <span>Final Velocity:</span>
+                                <span id="final-velocity-display-1" class="font-bold text-[#8b5a2b]">0.00 px/frame</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 law-card">
+                            <h3 class="font-bold text-lg text-[#8b5a2b]">Real World Example:</h3>
+                            <p class="text-gray-700">When a car suddenly stops, passengers continue moving forward due to inertia. Seat belts provide the unbalanced force that stops this motion.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulator 2: Newton's Second Law -->
+            <div id="sim-2" class="tab-content" style="display: none;">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-2">
+                        <canvas id="canvas2" width="800" height="500"></canvas>
+                    </div>
+                    <div class="control-panel p-6">
+                        <h2 class="text-2xl font-bold mb-2 text-[#8b5a2b]">Force, Mass & Acceleration</h2>
+                        <p class="text-gray-700 mb-4">A continuous force from the spacecraft's engine will cause it to accelerate. A larger mass requires more force for the same acceleration.</p>
+                        
+                        <div class="space-y-6 mb-6">
+                            <div>
+                                <label for="mass-slider" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-weight-hanging mr-2"></i>Spacecraft Mass (<span id="mass-value">1000</span> kg)
+                                </label>
+                                <input id="mass-slider" type="range" min="500" max="5000" value="1000" step="100" class="w-full">
+                            </div>
+                            <div>
+                                <label for="force-slider" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-fire mr-2"></i>Engine Thrust (<span id="force-value">2000</span> N)
+                                </label>
+                                <input id="force-slider" type="range" min="500" max="10000" value="2000" step="100" class="w-full">
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white rounded-lg space-y-2 border border-[#8b5a2b] mb-6">
+                            <div class="flex justify-between text-gray-700">
+                                <span>Initial Velocity:</span>
+                                <span id="initial-velocity-display" class="font-bold text-[#8b5a2b]">0.00 m/s</span>
+                            </div>
+                            <div class="flex justify-between text-gray-700">
+                                <span>Applied Force:</span>
+                                <span id="applied-force-display" class="font-bold text-[#8b5a2b]">2000 N</span>
+                            </div>
+                            <div class="flex justify-between text-gray-700">
+                                <span>Acceleration:</span>
+                                <span id="acceleration-display" class="font-bold text-[#8b5a2b]">2.00 m/s²</span>
+                            </div>
+                            <div class="flex justify-between text-gray-700">
+                                <span>Final Velocity:</span>
+                                <span id="final-velocity-display" class="font-bold text-[#8b5a2b]">0.00 m/s</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col space-y-4">
+                            <button id="run-btn-2" class="wood-button">
+                                <i class="fas fa-play mr-2"></i> Engage Thrusters
+                            </button>
+                            <button id="reset-btn-2" class="wood-button">
+                                <i class="fas fa-redo mr-2"></i> Reset
+                            </button>
+                        </div>
+                        
+                        <div class="mt-6 law-card">
+                            <h3 class="font-bold text-lg text-[#8b5a2b]">Real World Example:</h3>
+                            <p class="text-gray-700">Pushing a shopping cart: a light cart accelerates quickly with little force, while a full cart needs more force to achieve the same acceleration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulator 3: Newton's Third Law -->
+            <div id="sim-3" class="tab-content" style="display: none;">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-2">
+                        <canvas id="canvas3" width="800" height="500"></canvas>
+                    </div>
+                    <div class="control-panel p-6">
+                        <h2 class="text-2xl font-bold mb-2 text-[#8b5a2b]">Action-Reaction</h2>
+                        <p class="text-gray-700 mb-4">When two spacecraft modules separate, the force pushing them apart results in equal and opposite momentum changes.</p>
+
+                        <div class="space-y-6 mb-6">
+                             <div>
+                                <label for="module1-mass-slider" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-cube mr-2"></i>Module 1 Mass (<span id="module1-mass-value">1000</span> kg)
+                                </label>
+                                <input id="module1-mass-slider" type="range" min="500" max="2000" value="1000" class="w-full">
+                            </div>
+                            <div>
+                                <label for="module2-mass-slider" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-cube mr-2"></i>Module 2 Mass (<span id="module2-mass-value">800</span> kg)
+                                </label>
+                                <input id="module2-mass-slider" type="range" min="500" max="2000" value="800" class="w-full">
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-white rounded-lg space-y-2 border border-[#8b5a2b] mb-6">
+                            <p class="text-gray-700">Module 1 Velocity: <span id="module1-velocity" class="font-bold text-[#8b5a2b]">0.00 m/s</span></p>
+                             <p class="text-gray-700">Module 2 Velocity: <span id="module2-velocity" class="font-bold text-[#8b5a2b]">0.00 m/s</span></p>
+                        </div>
+
+                        <div class="flex flex-col space-y-4">
+                            <button id="separate-btn" class="wood-button">
+                                <i class="fas fa-object-ungroup mr-2"></i> Separate Modules
+                            </button>
+                            <button id="reset-btn-3" class="wood-button">
+                                <i class="fas fa-redo mr-2"></i> Reset
+                            </button>
+                        </div>
+                        
+                        <div class="mt-6 law-card">
+                            <h3 class="font-bold text-lg text-[#8b5a2b]">Real World Example:</h3>
+                            <p class="text-gray-700">When you jump off a small boat, the boat moves backward as you move forward. The force you apply to the boat is equal to the force the boat applies to you.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theory Modal -->
+    <div id="theory-modal" class="theory-modal">
+        <div class="theory-content">
+            <span class="close-button" id="close-theory">&times;</span>
+            <h2 class="text-3xl font-bold mb-6 text-[#8b5a2b] text-center">Newton's Laws of Motion</h2>
+            
+            <div id="theory-1" class="theory-section">
+                <h3 class="text-2xl font-bold mb-4 text-[#8b5a2b]">First Law: Law of Inertia</h3>
+                <p class="mb-4 text-gray-700">An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</p>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Explanation:</h4>
+                <p class="mb-4 text-gray-700">This law describes the tendency of objects to resist changes in their state of motion. The amount of inertia an object has depends on its mass - the greater the mass, the greater the inertia.</p>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Examples:</h4>
+                <ul class="list-disc pl-5 mb-4 text-gray-700">
+                    <li class="mb-2">A soccer ball continues rolling until friction and gravity stop it</li>
+                    <li class="mb-2">Passengers lurch forward when a car suddenly stops</li>
+                    <li class="mb-2">It's harder to push a heavy box than a light one</li>
+                </ul>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Formula:</h4>
+                <p class="mb-4 text-gray-700">When net force = 0, acceleration = 0</p>
+            </div>
+            
+            <div id="theory-2" class="theory-section" style="display: none;">
+                <h3 class="text-2xl font-bold mb-4 text-[#8b5a2b]">Second Law: F = ma</h3>
+                <p class="mb-4 text-gray-700">The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.</p>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Explanation:</h4>
+                <p class="mb-4 text-gray-700">This law quantifies how forces cause changes in motion. The direction of the acceleration is in the direction of the applied net force.</p>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Examples:</h4>
+                <ul class="list-disc pl-5 mb-4 text-gray-700">
+                    <li class="mb-2">Pushing a car requires more force than pushing a bicycle</li>
+                    <li class="mb-2">A rocket accelerates faster as it burns fuel and loses mass</li>
+                    <li class="mb-2">It's easier to accelerate an empty shopping cart than a full one</li>
+                </ul>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Formula:</h4>
+                <p class="mb-4 text-gray-700">F = m × a (Force = mass × acceleration)</p>
+            </div>
+            
+            <div id="theory-3" class="theory-section" style="display: none;">
+                <h3 class="text-2xl font-bold mb-4 text-[#8b5a2b]">Third Law: Action-Reaction</h3>
+                <p class="mb-4 text-gray-700">For every action, there is an equal and opposite reaction.</p>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Explanation:</h4>
+                <p class="mb-4 text-gray-700">This law states that forces always occur in pairs. If object A exerts a force on object B, then object B simultaneously exerts an equal and opposite force on object A.</p>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Examples:</h4>
+                <ul class="list-disc pl-5 mb-4 text-gray-700">
+                    <li class="mb-2">A rocket pushes exhaust gases downward, and the gases push the rocket upward</li>
+                    <li class="mb-2">When you swim, you push water backward, and the water pushes you forward</li>
+                    <li class="mb-2">Walking: your foot pushes backward on the ground, and the ground pushes you forward</li>
+                </ul>
+                
+                <h4 class="text-xl font-bold mb-2 text-[#8b5a2b]">Formula:</h4>
+                <p class="mb-4 text-gray-700">F<sub>AB</sub> = -F<sub>BA</sub> (The force of A on B equals the negative of the force of B on A)</p>
+            </div>
+            
+            <div class="flex justify-center mt-8">
+                <button id="prev-theory" class="wood-button mr-4">
+                    <i class="fas fa-arrow-left mr-2"></i> Previous
+                </button>
+                <button id="next-theory" class="wood-button">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Tab Navigation ---
+        const tabs = document.querySelectorAll('.tab-button');
+        const contents = document.querySelectorAll('.tab-content');
+
+        function changeTab(index) {
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            contents.forEach((content, i) => {
+                content.style.display = i === index ? 'block' : 'none';
+            });
+            
+            // Reset all simulators when changing tabs
+            reset1();
+            reset2();
+            reset3();
+        }
+
+        // --- Theory Modal Functionality ---
+        const theoryModal = document.getElementById('theory-modal');
+        const theoryBtn = document.getElementById('theory-btn');
+        const closeTheory = document.getElementById('close-theory');
+        const prevTheory = document.getElementById('prev-theory');
+        const nextTheory = document.getElementById('next-theory');
+        const theorySections = document.querySelectorAll('.theory-section');
+        let currentTheory = 0;
+
+        theoryBtn.addEventListener('click', () => {
+            theoryModal.style.display = 'block';
+            showTheorySection(0);
+        });
+
+        closeTheory.addEventListener('click', () => {
+            theoryModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === theoryModal) {
+                theoryModal.style.display = 'none';
+            }
+        });
+
+        prevTheory.addEventListener('click', () => {
+            if (currentTheory > 0) {
+                showTheorySection(currentTheory - 1);
+            }
+        });
+
+        nextTheory.addEventListener('click', () => {
+            if (currentTheory < theorySections.length - 1) {
+                showTheorySection(currentTheory + 1);
+            }
+        });
+
+        function showTheorySection(index) {
+            theorySections.forEach((section, i) => {
+                section.style.display = i === index ? 'block' : 'none';
+            });
+            currentTheory = index;
+            
+            // Update button states
+            prevTheory.disabled = index === 0;
+            nextTheory.disabled = index === theorySections.length - 1;
+        }
+
+        // --- Common Drawing Functions ---
+        const initialPlanets = [
+            { x: 200, y: 120, radius: 35, color: '#ca8a04' },
+            { x: 650, y: 400, radius: 60, color: '#be185d' },
+        ];
+
+        function setupSpaceBackground(canvas, starsArray, planetsArray) {
+            starsArray.length = 0;
+            for (let i = 0; i < 150; i++) {
+                starsArray.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.2
+                });
+            }
+            planetsArray.length = 0;
+            initialPlanets.forEach(p => planetsArray.push({...p, x: p.x * (canvas.width/800)})); // Scale planet positions
+        }
+
+        function drawSpaceBackground(ctx, canvas, starsArray, planetsArray, shipVelocity = 0) {
+            // Draw background - changed to black for space
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw stars - changed to white
+            ctx.fillStyle = '#FFFFFF';
+            starsArray.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw planets
+            planetsArray.forEach(planet => {
+                planet.x -= shipVelocity * 0.1;
+                if(planet.x + planet.radius < 0) planet.x = canvas.width + planet.radius;
+
+                ctx.fillStyle = planet.color;
+                ctx.beginPath();
+                ctx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2);
+                ctx.fill();
+                if (planet.color === '#be185d') {
+                    ctx.strokeStyle = '#fbcfe8';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.ellipse(planet.x, planet.y, planet.radius * 1.5, planet.radius * 0.5, Math.PI / 4, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function drawSpaceship(ctx, shipObject) {
+            ctx.save();
+            ctx.translate(shipObject.x, shipObject.y);
+            ctx.rotate(shipObject.angle || 0);
+            if (shipObject.isThrusting) {
+                const rand = Math.random() * 10;
+                ctx.fillStyle = '#f97316';
+                ctx.beginPath();
+                ctx.moveTo(-25, 0); ctx.lineTo(-45 - rand, 10); ctx.lineTo(-45 - rand, -10);
+                ctx.closePath(); ctx.fill();
+            }
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.moveTo(-15, 10); ctx.lineTo(-30, 20); ctx.lineTo(-25, 10); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(-15, -10); ctx.lineTo(-30, -20); ctx.lineTo(-25, -10); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#d1d5db';
+            ctx.beginPath(); ctx.roundRect(-25, -10, 40, 20, [0, 10, 10, 0]); ctx.fill();
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.moveTo(15, -10); ctx.lineTo(30, 0); ctx.lineTo(15, 10); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath(); ctx.arc(5, 0, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.restore();
+        }
+
+        // --- Simulator 1: Newton's First Law ---
+        const canvas1 = document.getElementById('canvas1');
+        const ctx1 = canvas1.getContext('2d');
+        const thrustBtn = document.getElementById('thrust-btn');
+        const resetBtn1 = document.getElementById('reset-btn-1');
+        const initialVelocityDisplay1 = document.getElementById('initial-velocity-display-1');
+        const appliedForceDisplay1 = document.getElementById('applied-force-display-1');
+        const finalVelocityDisplay1 = document.getElementById('final-velocity-display-1');
+
+        let spaceship1 = { x: 50, y: canvas1.height / 2, vx: 0, isThrusting: false };
+        let stars1 = [];
+        let planets1 = [];
+
+        function animate1() {
+            ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+            drawSpaceBackground(ctx1, canvas1, stars1, planets1, spaceship1.vx);
+            spaceship1.x += spaceship1.vx;
+            if (spaceship1.x - 40 > canvas1.width) spaceship1.x = -40;
+            finalVelocityDisplay1.textContent = `${spaceship1.vx.toFixed(2)} px/frame`;
+            drawSpaceship(ctx1, spaceship1); 
+            requestAnimationFrame(animate1);
+        }
+        thrustBtn.addEventListener('click', () => {
+            initialVelocityDisplay1.textContent = `${spaceship1.vx.toFixed(2)} px/frame`;
+            appliedForceDisplay1.textContent = `50 N (Impulse)`;
+            spaceship1.vx += 0.5;
+            spaceship1.isThrusting = true;
+            setTimeout(() => { 
+                spaceship1.isThrusting = false; 
+                appliedForceDisplay1.textContent = `0 N`;
+            }, 250);
+        });
+        function reset1() {
+            spaceship1.x = 50; spaceship1.y = canvas1.height / 2; spaceship1.vx = 0; spaceship1.isThrusting = false;
+            setupSpaceBackground(canvas1, stars1, planets1);
+            initialVelocityDisplay1.textContent = '0.00 px/frame';
+            appliedForceDisplay1.textContent = '0 N';
+            finalVelocityDisplay1.textContent = '0.00 px/frame';
+        }
+        resetBtn1.addEventListener('click', reset1);
+        
+        // --- Simulator 2: Newton's Second Law ---
+        const canvas2 = document.getElementById('canvas2');
+        const ctx2 = canvas2.getContext('2d');
+        const massSlider = document.getElementById('mass-slider');
+        const forceSlider = document.getElementById('force-slider');
+        const massValue = document.getElementById('mass-value');
+        const forceValue = document.getElementById('force-value');
+        const accelerationDisplay = document.getElementById('acceleration-display');
+        const runBtn2 = document.getElementById('run-btn-2');
+        const resetBtn2 = document.getElementById('reset-btn-2');
+        const initialVelocityDisplay = document.getElementById('initial-velocity-display');
+        const appliedForceDisplay = document.getElementById('applied-force-display');
+        const finalVelocityDisplay = document.getElementById('final-velocity-display');
+
+        let spaceship2 = { x: 50, y: canvas2.height / 2, vx: 0, isThrusting: false };
+        let stars2 = [];
+        let planets2 = [];
+        let mass2 = 1000;
+        let force2 = 2000;
+        let acceleration2 = 2;
+        let isRunning2 = false;
+        let animationFrameId2;
+
+        function updateAcceleration() {
+            mass2 = parseInt(massSlider.value);
+            force2 = parseInt(forceSlider.value);
+            acceleration2 = force2 / mass2;
+            massValue.textContent = mass2;
+            forceValue.textContent = force2;
+            accelerationDisplay.textContent = `${acceleration2.toFixed(2)} m/s²`;
+            appliedForceDisplay.textContent = `${force2} N`;
+        }
+        
+        function animate2() {
+            if (!isRunning2) return;
+            ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+            drawSpaceBackground(ctx2, canvas2, stars2, planets2, spaceship2.vx);
+            spaceship2.vx += acceleration2 * 0.01; 
+            spaceship2.x += spaceship2.vx;
+            let finalVelocity = spaceship2.vx * 20;
+            finalVelocityDisplay.textContent = `${finalVelocity.toFixed(2)} m/s`;
+            drawSpaceship(ctx2, spaceship2);
+            if (spaceship2.x > canvas2.width) {
+                isRunning2 = false;
+                runBtn2.disabled = false;
+                spaceship2.isThrusting = false;
+            }
+            animationFrameId2 = requestAnimationFrame(animate2);
+        }
+        
+        function reset2() {
+            isRunning2 = false;
+            cancelAnimationFrame(animationFrameId2);
+            spaceship2 = { x: 50, y: canvas2.height / 2, vx: 0, isThrusting: false };
+            setupSpaceBackground(canvas2, stars2, planets2);
+            ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+            drawSpaceBackground(ctx2, canvas2, stars2, planets2, 0);
+            drawSpaceship(ctx2, spaceship2);
+            runBtn2.disabled = false;
+            initialVelocityDisplay.textContent = '0.00 m/s';
+            finalVelocityDisplay.textContent = '0.00 m/s';
+            updateAcceleration();
+        }
+        massSlider.addEventListener('input', updateAcceleration);
+        forceSlider.addEventListener('input', updateAcceleration);
+        runBtn2.addEventListener('click', () => {
+            if (!isRunning2) {
+                reset2();
+                isRunning2 = true;
+                spaceship2.isThrusting = true;
+                animate2();
+                runBtn2.disabled = true;
+            }
+        });
+        resetBtn2.addEventListener('click', reset2);
+        
+        // --- Simulator 3: Newton's Third Law ---
+        const canvas3 = document.getElementById('canvas3');
+        const ctx3 = canvas3.getContext('2d');
+        const module1MassSlider = document.getElementById('module1-mass-slider');
+        const module2MassSlider = document.getElementById('module2-mass-slider');
+        const module1MassValue = document.getElementById('module1-mass-value');
+        const module2MassValue = document.getElementById('module2-mass-value');
+        const separateBtn = document.getElementById('separate-btn');
+        const resetBtn3 = document.getElementById('reset-btn-3');
+        const module1VelocityDisplay = document.getElementById('module1-velocity');
+        const module2VelocityDisplay = document.getElementById('module2-velocity');
+
+        let module1 = { x: canvas3.width / 2 - 25, y: canvas3.height / 2, vx: 0, mass: 1000 };
+        let module2 = { x: canvas3.width / 2 + 25, y: canvas3.height / 2, vx: 0, mass: 800 };
+        let stars3 = [];
+        let planets3 = [];
+        let animationFrameId3;
+        let isRunning3 = false;
+        
+        function drawSpaceModule(ctx, mod, type) {
+            ctx.save();
+            ctx.translate(mod.x, mod.y);
+            const width = 50;
+            const height = 80;
+
+            ctx.fillStyle = '#9CA3AF'; // Main body
+            ctx.strokeStyle = '#E5E7EB';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            if (type === 'left') {
+                // Command module (left)
+                ctx.moveTo(width/2, -height/2);
+                ctx.lineTo(-width/2, -height/4);
+                ctx.lineTo(-width/2, height/4);
+                ctx.lineTo(width/2, height/2);
+                ctx.closePath();
+            } else {
+                // Service module (right)
+                ctx.moveTo(-width/2, -height/2);
+                ctx.lineTo(width/2, -height/4);
+                ctx.lineTo(width/2, height/4);
+                ctx.lineTo(-width/2, height/2);
+                ctx.closePath();
+                 // Thruster nozzle
+                ctx.fillStyle = '#4B5563';
+                ctx.fillRect(width/2, -10, 10, 20);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            // Window
+            ctx.fillStyle = '#60A5FA';
+            if (type === 'left') {
+                 ctx.beginPath();
+                 ctx.arc(-5, 0, 10, 0, Math.PI*2);
+                 ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function updateMasses3() {
+            module1.mass = parseInt(module1MassSlider.value);
+            module2.mass = parseInt(module2MassSlider.value);
+            module1MassValue.textContent = module1.mass;
+            module2MassValue.textContent = module2.mass;
+        }
+
+        function animate3() {
+            if (!isRunning3) return;
+            ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
+            drawSpaceBackground(ctx3, canvas3, stars3, planets3);
+            
+            module1.x += module1.vx;
+            module2.x += module2.vx;
+
+            drawSpaceModule(ctx3, module1, 'left');
+            drawSpaceModule(ctx3, module2, 'right');
+
+            module1VelocityDisplay.textContent = `${(module1.vx * -10).toFixed(2)} m/s`;
+            module2VelocityDisplay.textContent = `${(module2.vx * 10).toFixed(2)} m/s`;
+            
+            if (module1.x < -50 || module2.x > canvas3.width + 50) {
+                 isRunning3 = false;
+                 separateBtn.disabled = false;
+            } else {
+                animationFrameId3 = requestAnimationFrame(animate3);
+            }
+        }
+
+        function reset3() {
+            isRunning3 = false;
+            cancelAnimationFrame(animationFrameId3);
+            module1.x = canvas3.width / 2 - 26;
+            module1.vx = 0;
+            module2.x = canvas3.width / 2 + 26;
+            module2.vx = 0;
+            
+            setupSpaceBackground(canvas3, stars3, planets3);
+            ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
+            drawSpaceBackground(ctx3, canvas3, stars3, planets3);
+            updateMasses3();
+            drawSpaceModule(ctx3, module1, 'left');
+            drawSpaceModule(ctx3, module2, 'right');
+            
+            separateBtn.disabled = false;
+            module1VelocityDisplay.textContent = '0.00 m/s'; 
+            module2VelocityDisplay.textContent = '0.00 m/s';
+        }
+
+        separateBtn.addEventListener('click', () => {
+            if (isRunning3) return;
+            const separationImpulse = 1000;
+            module1.vx = -separationImpulse / module1.mass;
+            module2.vx = separationImpulse / module2.mass;
+            isRunning3 = true;
+            separateBtn.disabled = true;
+            animate3();
+        });
+        module1MassSlider.addEventListener('input', updateMasses3);
+        module2MassSlider.addEventListener('input', updateMasses3);
+        resetBtn3.addEventListener('click', reset3);
+        
+        // --- Initial Setup ---
+        function resizeCanvases() {
+            [canvas1, canvas2, canvas3].forEach(canvas => {
+                let parent = canvas.parentElement;
+                if (parent) {
+                    let newWidth = parent.clientWidth;
+                    let newHeight = newWidth * (5/8);
+                    if(canvas.width !== newWidth || canvas.height !== newHeight) {
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+                    }
+                }
+            });
+            reset1();
+            reset2();
+            reset3();
+        }
+        
+        // Initialize
+        animate1();
+        updateAcceleration();
+        updateMasses3();
+
+        window.addEventListener('resize', resizeCanvases);
+        window.addEventListener('load', resizeCanvases);
+    </script>
+</body>
+</html>

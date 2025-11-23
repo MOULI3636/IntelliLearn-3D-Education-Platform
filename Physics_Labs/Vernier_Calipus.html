@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Vernier Caliper - School Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'glow-green': '#4ade80',
+                        'glow-green-light': '#86efac',
+                        'glow-green-dark': '#16a34a',
+                        'deep-green': '#166534',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+            background: white;
+        }
+        .scale-container {
+            position: relative;
+            user-select: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .main-scale-markings, .vernier-scale-markings {
+            display: flex;
+            position: absolute;
+        }
+        .main-scale-markings {
+            width: 100%;
+        }
+        .vernier-scale-markings {
+            width: 90px;
+        }
+        .tick {
+            position: relative;
+            border-left: 1px solid #4b5563;
+            width: 10px;
+        }
+        .tick-long {
+            height: 20px;
+        }
+        .tick-medium {
+            height: 15px;
+        }
+        .tick-short {
+            height: 10px;
+        }
+        .tick .label {
+            position: absolute;
+            bottom: -20px;
+            left: -50%;
+            transform: translateX(0.5px);
+            font-size: 10px;
+            color: #374151;
+            font-weight: 500;
+        }
+        .vernier-tick .label {
+            top: -18px;
+            font-size: 9px;
+        }
+        .vernier-scale {
+            position: absolute;
+            left: 0;
+            cursor: grab;
+            transition: left 0.1s ease;
+        }
+        .vernier-scale:active {
+            cursor: grabbing;
+        }
+        .jaw {
+            background: linear-gradient(to right, #c0c0c0, #e0e0e0);
+            border: 1px solid #9ca3af;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .fixed-jaw {
+            position: absolute;
+            width: 20px;
+            height: 60px;
+            bottom: 0;
+            left: 0;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        .slider-jaw {
+            position: absolute;
+            width: 20px;
+            height: 60px;
+            bottom: 0;
+            right: 0;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Silver metallic effect for scales */
+        .main-scale {
+            background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        .vernier-scale-inner {
+            background: linear-gradient(to bottom, #e8e8e8, #d8d8d8);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+        }
+
+        /* Realistic object colors */
+        .cylinder-object {
+            background: linear-gradient(45deg, #a0522d, #8b4513, #654321);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5d4037;
+        }
+        .cube-object {
+            background: linear-gradient(45deg, #8b4513, #a0522d, #cd853f);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5d4037;
+        }
+        .rod-object {
+            background: linear-gradient(45deg, #696969, #808080, #a9a9a9);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5d4037;
+        }
+        .sphere-object {
+            background: radial-gradient(circle at 30% 30%, #a0522d, #8b4513, #654321);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5d4037;
+        }
+        .custom-object {
+            background: linear-gradient(45deg, #4682b4, #5f9ea0, #87ceeb);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5d4037;
+        }
+
+        /* Green glow effects */
+        .reading-box {
+            background-color: white;
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            border-radius: 12px;
+            animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px rgba(74, 222, 128, 0.3), 0 0 10px rgba(74, 222, 128, 0.2);
+            }
+            to {
+                box-shadow: 0 0 15px rgba(74, 222, 128, 0.4), 0 0 25px rgba(74, 222, 128, 0.3);
+            }
+        }
+        
+        /* Button glow effects */
+        .btn-glow {
+            box-shadow: 0 0 5px rgba(74, 222, 128, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.4), 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+        
+        /* Dropdown styling */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #4ade80;
+        }
+        .dropdown-content a {
+            color: #374151;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.2s;
+        }
+        .dropdown-content a:hover {
+            background-color: #f0fdf4;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #374151;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Instruction panel */
+        .instruction-panel {
+            transition: all 0.3s ease;
+            overflow: hidden;
+            max-height: 0;
+            background-color: white;
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            border-radius: 12px;
+        }
+        .instruction-panel.open {
+            max-height: 500px;
+        }
+        
+        /* History table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .history-table th, .history-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #4ade80;
+        }
+        .history-table th {
+            background-color: #f0fdf4;
+            color: #374151;
+        }
+        .history-table tr:hover {
+            background-color: #f0fdf4;
+        }
+        
+        /* Record panel */
+        .record-panel {
+            transition: all 0.3s ease;
+            overflow: hidden;
+            max-height: 0;
+            background-color: white;
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            border-radius: 12px;
+        }
+        .record-panel.open {
+            max-height: 500px;
+        }
+        
+        /* Fun facts panel */
+        .fun-facts-panel {
+            background-color: white;
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            border-radius: 12px;
+        }
+        
+        /* Custom modal */
+        .custom-modal {
+            background-color: white;
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            border-radius: 12px;
+        }
+        
+        /* Text colors */
+        .text-deep-green {
+            color: #166534;
+        }
+        .text-glow-green {
+            color: #16a34a;
+        }
+        .bg-glow-green {
+            background-color: #4ade80;
+        }
+        .hover-bg-glow-green:hover {
+            background-color: #16a34a;
+        }
+        .border-glow-green {
+            border-color: #4ade80;
+        }
+
+        /* Object rotation controls */
+        .rotation-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .rotation-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4ade80;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .rotation-btn:hover {
+            background-color: #16a34a;
+            transform: scale(1.05);
+        }
+        .rotation-indicator {
+            font-weight: bold;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* Tab styling for different object tables */
+        .tab-container {
+            margin-top: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #4ade80;
+        }
+        .tab-button {
+            padding: 8px 16px;
+            background-color: #f0fdf4;
+            border: 1px solid #4ade80;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-button.active {
+            background-color: #4ade80;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #4ade80;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Angle measurement buttons */
+        .angle-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .angle-btn {
+            padding: 6px 12px;
+            background-color: #f0fdf4;
+            border: 1px solid #4ade80;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        .angle-btn:hover {
+            background-color: #4ade80;
+            color: white;
+        }
+        .angle-btn.active {
+            background-color: #4ade80;
+            color: white;
+        }
+        
+        /* Theory panel */
+        .theory-panel {
+            transition: all 0.3s ease;
+            overflow: hidden;
+            max-height: 0;
+            background-color: white;
+            border: 2px solid #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            border-radius: 12px;
+        }
+        .theory-panel.open {
+            max-height: 1000px;
+        }
+        
+        /* Back menu button */
+        .back-menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4ade80;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 5px rgba(74, 222, 128, 0.3);
+        }
+        .back-menu:hover {
+            background-color: #16a34a;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- Back Menu Button -->
+        <!-- <button class="back-menu">
+            <i class="fas fa-arrow-left mr-1"></i>Back Menu
+        </button> -->
+
+        <!-- Header with deep green color -->
+        <h1 class="text-3xl font-bold text-center text-deep-green mb-2">
+            <i class="fas fa-ruler-combined mr-2"></i>Interactive Vernier Caliper
+        </h1>
+        <p class="text-center text-gray-700 mb-4">Drag the slider or the lower jaw to measure objects</p>
+
+        <!-- Reading Display -->
+        <div class="p-6 rounded-lg mb-6 text-center reading-box">
+            <h2 class="text-lg font-semibold text-glow-green">
+                <i class="fas fa-ruler-horizontal mr-2"></i>Measurement
+            </h2>
+            <p id="reading-display" class="text-4xl font-bold text-glow-green tabular-nums">0.0 mm</p>
+             <div class="flex justify-center items-center space-x-6 mt-4 text-sm text-gray-700">
+                <p class="tooltip">Main Scale: <span id="main-scale-reading" class="font-semibold text-glow-green">0 mm</span>
+                    <span class="tooltiptext">The reading on the main scale before the zero of the vernier scale</span>
+                </p>
+                <p class="tooltip">Vernier Coincidence: <span id="vernier-coincidence" class="font-semibold text-glow-green">0</span>
+                    <span class="tooltiptext">The vernier division that aligns perfectly with a main scale division</span>
+                </p>
+                <p class="tooltip">Least Count: <span class="font-semibold text-glow-green">0.1 mm</span>
+                    <span class="tooltiptext">The smallest measurement this vernier caliper can make</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Object Selection Dropdown -->
+        <div class="flex justify-center mb-6">
+            <div class="dropdown">
+                <button class="bg-glow-green hover:bg-glow-green-dark text-white font-bold py-2 px-4 rounded-lg shadow-md btn-glow flex items-center">
+                    <i class="fas fa-shapes mr-2"></i>Select Object to Measure
+                    <i class="fas fa-caret-down ml-2"></i>
+                </button>
+                <div class="dropdown-content mt-1">
+                    <a href="#" data-type="cylinder" data-dimensions='{"0": 45.3, "90": 45.1, "180": 45.4, "270": 45.2, "360": 45.3}'>
+                        <i class="fas fa-circle mr-2"></i>Cylinder (Diameter varies by angle)
+                    </a>
+                    <a href="#" data-type="cube" data-dimensions='{"0": 62.8, "90": 62.7, "180": 62.9, "270": 62.6, "360": 62.8}'>
+                        <i class="fas fa-cube mr-2"></i>Cube (Side varies by angle)
+                    </a>
+                    <a href="#" data-type="rod" data-dimensions='{"0": 38.5, "90": 38.4, "180": 38.6, "270": 38.3, "360": 38.5}'>
+                        <i class="fas fa-minus mr-2"></i>Rod (Diameter varies by angle)
+                    </a>
+                    <a href="#" data-type="sphere" data-dimensions='{"0": 52.1, "90": 52.0, "180": 52.2, "270": 52.1, "360": 52.1}'>
+                        <i class="fas fa-circle mr-2"></i>Sphere (Diameter varies by angle)
+                    </a>
+                    <a href="#" data-type="custom">
+                        <i class="fas fa-pen mr-2"></i>Custom Measurement
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rotation Controls -->
+        <div id="rotation-controls" class="rotation-controls hidden">
+            <div class="rotation-btn" id="rotate-left">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div class="rotation-indicator">
+                Angle: <span id="angle-display">0°</span>
+            </div>
+            <div class="rotation-btn" id="rotate-right">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </div>
+        
+        <!-- Angle Measurement Buttons -->
+        <div id="angle-buttons" class="angle-buttons hidden">
+            <button class="angle-btn" data-angle="0">0°</button>
+            <button class="angle-btn" data-angle="90">90°</button>
+            <button class="angle-btn" data-angle="180">180°</button>
+            <button class="angle-btn" data-angle="270">270°</button>
+            <button class="angle-btn" data-angle="360">360°</button>
+        </div>
+
+        <!-- Instruction Toggle -->
+        <div class="flex justify-center mb-4 space-x-4">
+            <button id="instruction-toggle" class="text-gray-700 hover:text-glow-green text-sm font-medium">
+                <i class="fas fa-question-circle mr-1"></i>Show Instructions
+            </button>
+            <button id="record-toggle" class="text-gray-700 hover:text-glow-green text-sm font-medium">
+                <i class="fas fa-clipboard-list mr-1"></i>Record Measurement
+            </button>
+            <!-- Theory Button -->
+            <button id="theory-toggle" class="text-gray-700 hover:text-glow-green text-sm font-medium">
+                <i class="fas fa-graduation-cap mr-1"></i>Theory
+            </button>
+        </div>
+
+        <!-- Instruction Panel (Hidden by default) -->
+        <div id="instruction-panel" class="instruction-panel p-4 rounded-lg mb-6">
+            <h3 class="font-semibold text-glow-green mb-2">
+                <i class="fas fa-info-circle mr-2"></i>How to Use the Vernier Caliper:
+            </h3>
+            <ol class="list-decimal pl-5 text-gray-700 text-sm space-y-2">
+                <li>Select an object from the dropdown menu or use the custom measurement</li>
+                <li>Drag the slider or the vernier scale to adjust the measurement</li>
+                <li>Read the main scale value (the number just before the zero of the vernier scale)</li>
+                <li>Find which vernier division aligns perfectly with a main scale division</li>
+                <li>Calculate: Total = Main Scale Reading + (Vernier Coincidence × Least Count)</li>
+                <li>Record your measurement and compare it with the actual value</li>
+                <li>Use the rotation controls to measure the object from different angles</li>
+                <li>Click on the angle buttons (0°, 90°, 180°, 270°, 360°) to record measurements at specific angles</li>
+            </ol>
+        </div>
+
+        <!-- Record Panel (Hidden by default) -->
+        <div id="record-panel" class="record-panel p-4 rounded-lg mb-6">
+            <h3 class="font-semibold text-glow-green mb-2">
+                <i class="fas fa-clipboard-list mr-2"></i>Record Your Measurement
+            </h3>
+            <p class="text-gray-700 text-sm mb-3">Enter your measurement reading:</p>
+            <div class="flex items-center mb-3">
+                <input type="number" step="0.1" id="recorded-value" class="border border-glow-green rounded p-2 mr-2" placeholder="Enter your measurement">
+                <span class="text-gray-700">mm</span>
+            </div>
+            <div class="flex justify-between">
+                <button id="record-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded text-sm">
+                    Cancel
+                </button>
+                <button id="record-apply" class="bg-glow-green hover:bg-glow-green-dark text-white font-bold py-2 px-4 rounded text-sm">
+                    Apply
+                </button>
+            </div>
+        </div>
+        
+        <!-- Theory Panel (Hidden by default) -->
+        <div id="theory-panel" class="theory-panel p-4 rounded-lg mb-6">
+            <h3 class="font-semibold text-glow-green mb-2">
+                <i class="fas fa-graduation-cap mr-2"></i>Vernier Caliper Theory
+            </h3>
+            
+            <h4 class="font-semibold text-glow-green mt-4 mb-2">What is a Vernier Caliper?</h4>
+            <p class="text-gray-700 text-sm mb-3">
+                A vernier caliper is a precision instrument used for measuring internal and external dimensions with high accuracy. 
+                It consists of a main scale and a sliding vernier scale, which allows for measurements to be made to a fraction of 
+                the smallest division on the main scale.
+            </p>
+            
+            <h4 class="font-semibold text-glow-green mt-4 mb-2">Parts of a Vernier Caliper</h4>
+            <ol class="list-decimal pl-5 text-gray-700 text-sm space-y-2">
+                <li><strong>Main Scale:</strong> The fixed scale with markings in millimeters and centimeters</li>
+                <li><strong>Vernier Scale:</strong> The sliding scale that provides the fractional measurement</li>
+                <li><strong>Jaws:</strong> Used to measure external dimensions (lower jaws) and internal dimensions (upper jaws)</li>
+                <li><strong>Depth Probe:</strong> A rod that extends from the end to measure depths of holes</li>
+            </ol>
+            
+            <h4 class="font-semibold text-glow-green mt-4 mb-2">How to Read a Vernier Caliper</h4>
+            <p class="text-gray-700 text-sm mb-2">
+                To read a vernier caliper:
+            </p>
+            <ol class="list-decimal pl-5 text-gray-700 text-sm space-y-2">
+                <li>Read the main scale measurement just before the zero of the vernier scale</li>
+                <li>Find the vernier division that aligns perfectly with a main scale division</li>
+                <li>Multiply the vernier division number by the least count (0.1 mm for this caliper)</li>
+                <li>Add this value to the main scale reading</li>
+            </ol>
+            
+            <h4 class="font-semibold text-glow-green mt-4 mb-2">Example Measurement</h4>
+            <p class="text-gray-700 text-sm mb-2">
+                Let's say the main scale reading is 23 mm, and the 7th division on the vernier scale aligns with a main scale division:
+            </p>
+            <p class="text-gray-700 text-sm mb-2">
+                Measurement = Main Scale Reading + (Vernier Division × Least Count)<br>
+                Measurement = 23 mm + (7 × 0.1 mm) = 23.7 mm
+            </p>
+            
+            <h4 class="font-semibold text-glow-green mt-4 mb-2">Applications of Vernier Calipers</h4>
+            <ul class="list-disc pl-5 text-gray-700 text-sm space-y-2">
+                <li>Measuring diameters of cylinders and spheres</li>
+                <li>Measuring thickness of objects</li>
+                <li>Measuring internal dimensions of hollow objects</li>
+                <li>Measuring depths of holes and slots</li>
+                <li>Quality control in manufacturing processes</li>
+            </ul>
+            
+            <h4 class="font-semibold text-glow-green mt-4 mb-2">Why Measurements Vary by Angle</h4>
+            <p class="text-gray-700 text-sm mb-3">
+                In real-world scenarios, objects may not be perfectly uniform. For example:
+            </p>
+            <ul class="list-disc pl-5 text-gray-700 text-sm space-y-2">
+                <li>A cylinder might be slightly oval rather than perfectly circular</li>
+                <li>A cube might have slightly different side lengths due to manufacturing variations</li>
+                <li>A rod might have variations in diameter along its length</li>
+                <li>Even spheres can have microscopic imperfections that affect measurements</li>
+            </ul>
+            <p class="text-gray-700 text-sm mb-3">
+                This is why it's important to take measurements from multiple angles to understand the true dimensions and tolerances of an object.
+            </p>
+        </div>
+
+        <!-- Vernier Caliper Graphic -->
+        <div class="scale-container w-full h-40 rounded-md p-4 relative mb-2">
+            <!-- Measurable Objects -->
+            <div id="object-container" class="absolute h-[40px] bottom-[16px] left-[20px] z-0 flex items-center justify-center">
+                 <div id="cylinder" class="hidden h-full cylinder-object rounded-full"></div>
+                 <div id="cube" class="hidden h-full cube-object rounded-md"></div>
+                 <div id="rod" class="hidden h-full rod-object rounded-md"></div>
+                 <div id="sphere" class="hidden h-full sphere-object rounded-full"></div>
+                 <div id="custom-object" class="hidden h-full custom-object rounded-md"></div>
+            </div>
+
+            <!-- Main Scale -->
+            <div id="main-scale" class="main-scale relative h-10 rounded">
+                 <div class="fixed-jaw jaw"></div>
+                <div id="main-scale-markings" class="main-scale-markings top-full">
+                    <!-- Markings will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Vernier Scale (Sliding Part) -->
+            <div id="vernier-scale" class="vernier-scale h-10 w-[110px] top-[24px] z-10">
+                <div class="vernier-scale-inner relative h-full rounded">
+                    <div class="slider-jaw jaw"></div>
+                    <div id="vernier-scale-markings" class="vernier-scale-markings bottom-full">
+                        <!-- Markings will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Slider -->
+        <div class="mt-4 mb-6">
+            <input id="measurement-slider" type="range" min="0" max="1000" value="0" class="w-full h-3 bg-gradient-to-r from-gray-200 to-glow-green rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Reset Button -->
+        <div class="flex justify-center">
+            <button id="reset-btn" class="bg-glow-green hover:bg-glow-green-dark text-white font-bold py-2 px-6 rounded-lg shadow-md btn-glow flex items-center">
+                <i class="fas fa-redo-alt mr-2"></i>Reset Measurement
+            </button>
+        </div>
+
+        <!-- Tab Container for Different Object Tables -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="cylinder">Cylinder</button>
+                <button class="tab-button" data-tab="cube">Cube</button>
+                <button class="tab-button" data-tab="rod">Rod</button>
+                <button class="tab-button" data-tab="sphere">Sphere</button>
+                <button class="tab-button" data-tab="custom">Custom</button>
+            </div>
+            
+            <div class="tab-content active" id="cylinder-tab">
+                <h3 class="font-semibold text-glow-green mb-2">
+                    <i class="fas fa-history mr-2"></i>Cylinder Measurements
+                </h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Angle (°)</th>
+                            <th>Your Measurement (mm)</th>
+                            <th>Actual Diameter (mm)</th>
+                            <th>Difference (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cylinder-history">
+                        <!-- Cylinder history rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="cube-tab">
+                <h3 class="font-semibold text-glow-green mb-2">
+                    <i class="fas fa-history mr-2"></i>Cube Measurements
+                </h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Angle (°)</th>
+                            <th>Your Measurement (mm)</th>
+                            <th>Actual Side (mm)</th>
+                            <th>Difference (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cube-history">
+                        <!-- Cube history rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="rod-tab">
+                <h3 class="font-semibold text-glow-green mb-2">
+                    <i class="fas fa-history mr-2"></i>Rod Measurements
+                </h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Angle (°)</th>
+                            <th>Your Measurement (mm)</th>
+                            <th>Actual Diameter (mm)</th>
+                            <th>Difference (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rod-history">
+                        <!-- Rod history rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="sphere-tab">
+                <h3 class="font-semibold text-glow-green mb-2">
+                    <i class="fas fa-history mr-2"></i>Sphere Measurements
+                </h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Angle (°)</th>
+                            <th>Your Measurement (mm)</th>
+                            <th>Actual Diameter (mm)</th>
+                            <th>Difference (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sphere-history">
+                        <!-- Sphere history rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="custom-tab">
+                <h3 class="font-semibold text-glow-green mb-2">
+                    <i class="fas fa-history mr-2"></i>Custom Measurements
+                </h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Angle (°)</th>
+                            <th>Your Measurement (mm)</th>
+                            <th>Actual Size (mm)</th>
+                            <th>Difference (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="custom-history">
+                        <!-- Custom history rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fun Facts Panel -->
+        <div class="mt-4 p-4 fun-facts-panel">
+            <h3 class="font-semibold text-glow-green mb-2">
+                <i class="fas fa-lightbulb mr-2"></i>Did You Know?
+            </h3>
+            <p id="fun-fact" class="text-gray-700 text-sm">
+                Vernier calipers were invented by Pierre Vernier in 1631. They provide much greater accuracy than regular rulers!
+            </p>
+        </div>
+    </div>
+
+    <!-- Custom Measurement Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="custom-modal p-6 rounded-lg w-80">
+            <h3 class="text-xl font-semibold text-glow-green mb-4">Enter Custom Measurement</h3>
+            <input type="number" id="custom-value" step="0.1" min="0" max="100" placeholder="Enter value in mm" class="w-full p-2 border border-glow-green rounded mb-4">
+            <div class="flex justify-between">
+                <button id="custom-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                    Cancel
+                </button>
+                <button id="custom-apply" class="bg-glow-green hover:bg-glow-green-dark text-white font-bold py-2 px-4 rounded">
+                    Apply
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mainScaleMarkings = document.getElementById('main-scale-markings');
+        const vernierScaleMarkings = document.getElementById('vernier-scale-markings');
+        const vernierScale = document.getElementById('vernier-scale');
+        const slider = document.getElementById('measurement-slider');
+        const readingDisplay = document.getElementById('reading-display');
+        const mainScaleReadingDisplay = document.getElementById('main-scale-reading');
+        const vernierCoincidenceDisplay = document.getElementById('vernier-coincidence');
+        
+        const resetBtn = document.getElementById('reset-btn');
+        const instructionToggle = document.getElementById('instruction-toggle');
+        const instructionPanel = document.getElementById('instruction-panel');
+        const recordToggle = document.getElementById('record-toggle');
+        const recordPanel = document.getElementById('record-panel');
+        const recordedValue = document.getElementById('recorded-value');
+        const recordCancel = document.getElementById('record-cancel');
+        const recordApply = document.getElementById('record-apply');
+        const customModal = document.getElementById('custom-modal');
+        const customValue = document.getElementById('custom-value');
+        const customCancel = document.getElementById('custom-cancel');
+        const customApply = document.getElementById('custom-apply');
+        const funFact = document.getElementById('fun-fact');
+        
+        // Rotation controls
+        const rotationControls = document.getElementById('rotation-controls');
+        const rotateLeftBtn = document.getElementById('rotate-left');
+        const rotateRightBtn = document.getElementById('rotate-right');
+        const angleDisplay = document.getElementById('angle-display');
+        
+        // Angle buttons
+        const angleButtons = document.getElementById('angle-buttons');
+        const angleBtnElements = document.querySelectorAll('.angle-btn');
+        
+        // Theory button
+        const theoryToggle = document.getElementById('theory-toggle');
+        const theoryPanel = document.getElementById('theory-panel');
+        
+        // Tab elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        const objects = {
+            'cylinder': document.getElementById('cylinder'),
+            'cube': document.getElementById('cube'),
+            'rod': document.getElementById('rod'),
+            'sphere': document.getElementById('sphere'),
+            'custom-object': document.getElementById('custom-object')
+        };
+
+        const funFacts = [
+            "Vernier calipers were invented by Pierre Vernier in 1631. They provide much greater accuracy than regular rulers!",
+            "The vernier scale allows for measurements up to 1/10th of the smallest division on the main scale.",
+            "Vernier calipers can measure internal dimensions, external dimensions, and depths with great precision.",
+            "Digital calipers work on the same principle as vernier calipers but use electronic sensors instead of visual alignment.",
+            "The word 'vernier' honors Pierre Vernier, the French mathematician who invented the scale."
+        ];
+
+        const LEAST_COUNT = 0.1;
+        const MAX_MM = 100;
+        let scaleWidth = mainScaleMarkings.clientWidth;
+        let isObjectMeasured = false;
+        let currentObjectType = null;
+        let currentActualDimensions = {}; // Store dimensions for different angles
+        let currentAngle = 0; // Track current rotation angle
+        let measurementHistory = {
+            'cylinder': [],
+            'cube': [],
+            'rod': [],
+            'sphere': [],
+            'custom': []
+        };
+        let userMeasurement = 0; // Store user's measurement
+
+        // --- Generate Scale Markings ---
+        function generateScales() {
+            scaleWidth = mainScaleMarkings.clientWidth;
+            mainScaleMarkings.innerHTML = '';
+            vernierScaleMarkings.innerHTML = '';
+
+            // Main Scale (in mm)
+            const numTicks = Math.floor(scaleWidth / 10);
+            for (let i = 0; i <= numTicks; i++) {
+                const tick = document.createElement('div');
+                tick.classList.add('tick');
+
+                if (i % 10 === 0) {
+                    tick.classList.add('tick-long');
+                    const label = document.createElement('span');
+                    label.classList.add('label');
+                    label.textContent = i / 10;
+                    tick.appendChild(label);
+                } else if (i % 5 === 0) {
+                    tick.classList.add('tick-medium');
+                } else {
+                    tick.classList.add('tick-short');
+                }
+                mainScaleMarkings.appendChild(tick);
+            }
+            
+            const extraTick = document.createElement('div');
+            extraTick.classList.add('tick', 'tick-short');
+            mainScaleMarkings.appendChild(extraTick);
+
+            // Vernier Scale
+            for (let i = 0; i <= 10; i++) {
+                const tick = document.createElement('div');
+                tick.classList.add('tick', 'vernier-tick');
+                tick.style.width = '9px';
+                tick.classList.add('tick-short');
+
+                if (i % 5 === 0) {
+                     tick.classList.add('tick-medium');
+                }
+                
+                if (i % 2 === 0) {
+                    const label = document.createElement('span');
+                    label.classList.add('label');
+                    label.textContent = i;
+                    tick.appendChild(label);
+                }
+                vernierScaleMarkings.appendChild(tick);
+            }
+        }
+
+        // --- Update Measurement ---
+        function updateMeasurement(value) {
+            const measurement = (value / 1000) * MAX_MM;
+            const mainScaleReading = Math.floor(measurement);
+            const fractionalPart = measurement - mainScaleReading;
+            const vernierCoincidence = Math.round(fractionalPart / LEAST_COUNT);
+            const totalReading = mainScaleReading + (vernierCoincidence * LEAST_COUNT);
+            
+            // Store the user's measurement
+            userMeasurement = totalReading;
+            
+            readingDisplay.textContent = totalReading.toFixed(1) + ' mm';
+            mainScaleReadingDisplay.textContent = mainScaleReading + ' mm';
+            vernierCoincidenceDisplay.textContent = vernierCoincidence;
+
+            const maxPixelValue = scaleWidth - vernierScale.offsetWidth + 20;
+            const pixelPosition = (measurement / MAX_MM) * maxPixelValue;
+            vernierScale.style.left = pixelPosition + 'px';
+            
+            return totalReading;
+        }
+
+        // --- Object Measurement Logic ---
+        function measureObject(dimensions, objectType) {
+            isObjectMeasured = true;
+            currentObjectType = objectType;
+            currentActualDimensions = dimensions; // Store all dimensions for different angles
+            slider.disabled = true;
+
+            // Show rotation controls
+            rotationControls.classList.remove('hidden');
+            angleButtons.classList.remove('hidden');
+            currentAngle = 0;
+            angleDisplay.textContent = '0°';
+            
+            // Reset angle buttons
+            angleBtnElements.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.angle-btn[data-angle="0"]').classList.add('active');
+
+            // Hide all objects first
+            for (const key in objects) {
+                objects[key].classList.add('hidden');
+            }
+            
+            if (objects[objectType]) {
+                objects[objectType].classList.remove('hidden');
+                const maxPixelValue = scaleWidth - vernierScale.offsetWidth + 20;
+                const dimension = dimensions[currentAngle] || dimensions["0"];
+                const pixelWidth = (dimension / MAX_MM) * maxPixelValue;
+                
+                // Adjust sphere size to be smaller
+                if (objectType === 'sphere') {
+                    objects[objectType].style.width = (pixelWidth * 0.5) + 'px';
+                    objects[objectType].style.height = (pixelWidth * 0.5) + 'px';
+                } else {
+                    objects[objectType].style.width = (pixelWidth * 0.7) + 'px';
+                }
+                
+                // Reset rotation
+                objects[objectType].style.transform = 'rotate(0deg)';
+            }
+
+            const dimension = dimensions[currentAngle] || dimensions["0"];
+            const sliderValue = (dimension / MAX_MM) * 1000;
+            slider.value = sliderValue;
+            const totalReading = updateMeasurement(sliderValue);
+            
+            // Show a random fun fact
+            funFact.textContent = funFacts[Math.floor(Math.random() * funFacts.length)];
+            
+            // Switch to the appropriate tab
+            switchTab(objectType === 'custom-object' ? 'custom' : objectType);
+            
+            // Initialize the history table for this object
+            updateHistoryTable(objectType === 'custom-object' ? 'custom' : objectType);
+        }
+
+        // Function to rotate the object
+        function rotateObject(degrees) {
+            currentAngle = (currentAngle + degrees) % 360;
+            if (currentAngle < 0) currentAngle += 360;
+            
+            angleDisplay.textContent = `${currentAngle}°`;
+            
+            // Update active angle button
+            angleBtnElements.forEach(btn => btn.classList.remove('active'));
+            
+            // Find the closest angle button to highlight
+            const closestAngle = Math.round(currentAngle / 90) * 90;
+            if (closestAngle <= 360) {
+                const closestBtn = document.querySelector(`.angle-btn[data-angle="${closestAngle}"]`);
+                if (closestBtn) closestBtn.classList.add('active');
+            }
+            
+            if (objects[currentObjectType]) {
+                objects[currentObjectType].style.transform = `rotate(${currentAngle}deg)`;
+                
+                // Update the measurement based on the angle
+                if (currentActualDimensions && currentActualDimensions[currentAngle]) {
+                    const dimension = currentActualDimensions[currentAngle];
+                    const sliderValue = (dimension / MAX_MM) * 1000;
+                    slider.value = sliderValue;
+                    updateMeasurement(sliderValue);
+                }
+            }
+        }
+
+        // Function to record measurement at specific angle
+        function recordAngleMeasurement(angle) {
+            if (!isObjectMeasured) {
+                alert('Please select an object to measure first!');
+                return;
+            }
+            
+            // Add to history
+            const objectType = currentObjectType === 'custom-object' ? 'custom' : currentObjectType;
+            const actualDimension = currentActualDimensions[angle] || currentActualDimensions["0"];
+            addToHistory(objectType, userMeasurement, actualDimension, angle);
+        }
+
+        // Function to switch tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            tabButtons.forEach(button => {
+                if (button.dataset.tab === tabName) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+            
+            // Update tab contents
+            tabContents.forEach(content => {
+                if (content.id === `${tabName}-tab`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        function addToHistory(objectType, measuredValue, actualValue, angle) {
+            const difference = Math.abs(measuredValue - actualValue);
+            
+            // Check if we already have a measurement for this angle
+            const existingIndex = measurementHistory[objectType].findIndex(item => item.angle === angle);
+            
+            if (existingIndex !== -1) {
+                // Update existing measurement
+                measurementHistory[objectType][existingIndex] = {
+                    angle: angle,
+                    measured: measuredValue,
+                    actual: actualValue,
+                    difference: difference.toFixed(1)
+                };
+            } else {
+                // Add new measurement
+                measurementHistory[objectType].push({
+                    angle: angle,
+                    measured: measuredValue,
+                    actual: actualValue,
+                    difference: difference.toFixed(1)
+                });
+            }
+            
+            updateHistoryTable(objectType);
+        }
+        
+        function updateHistoryTable(objectType) {
+            const historyBody = document.getElementById(`${objectType}-history`);
+            historyBody.innerHTML = '';
+            
+            // Create entries for all standard angles, even if not measured yet
+            const standardAngles = [0, 90, 180, 270, 360];
+            
+            standardAngles.forEach(angle => {
+                const row = document.createElement('tr');
+                const measurement = measurementHistory[objectType].find(item => item.angle === angle);
+                
+                if (measurement) {
+                    row.innerHTML = `
+                        <td>${measurement.angle}°</td>
+                        <td>${measurement.measured.toFixed(1)}</td>
+                        <td>${measurement.actual}</td>
+                        <td>${measurement.difference}</td>
+                    `;
+                } else {
+                    // Get the actual dimension for this angle if available
+                    const actualDimension = currentActualDimensions && currentActualDimensions[angle] ? 
+                        currentActualDimensions[angle] : 
+                        (currentActualDimensions && currentActualDimensions["0"] ? currentActualDimensions["0"] : "-");
+                    
+                    row.innerHTML = `
+                        <td>${angle}°</td>
+                        <td>-</td>
+                        <td>${actualDimension}</td>
+                        <td>-</td>
+                    `;
+                }
+                
+                historyBody.appendChild(row);
+            });
+        }
+
+        function resetMeasurement() {
+            isObjectMeasured = false;
+            currentObjectType = null;
+            currentActualDimensions = {};
+            userMeasurement = 0;
+            currentAngle = 0;
+            slider.disabled = false;
+
+            // Hide rotation controls
+            rotationControls.classList.add('hidden');
+            angleButtons.classList.add('hidden');
+
+            for (const key in objects) {
+                objects[key].classList.add('hidden');
+            }
+            
+            slider.value = 0;
+            updateMeasurement(0);
+            
+            // Close record panel
+            recordPanel.classList.remove('open');
+        }
+        
+        function recordMeasurement() {
+            if (!isObjectMeasured) {
+                alert('Please select an object to measure first!');
+                return;
+            }
+            
+            // Set the current reading as the default value
+            recordedValue.value = userMeasurement.toFixed(1);
+            
+            // Show the record panel
+            recordPanel.classList.add('open');
+        }
+        
+        function applyRecordedMeasurement() {
+            const recordedMeasurement = parseFloat(recordedValue.value);
+            
+            if (isNaN(recordedMeasurement)) {
+                alert('Please enter a valid measurement');
+                return;
+            }
+            
+            // Add to history
+            const objectType = currentObjectType === 'custom-object' ? 'custom' : currentObjectType;
+            const actualDimension = currentActualDimensions[currentAngle] || currentActualDimensions["0"];
+            addToHistory(objectType, recordedMeasurement, actualDimension, currentAngle);
+            
+            // Update the display with the recorded value
+            readingDisplay.textContent = recordedMeasurement.toFixed(1) + ' mm';
+            userMeasurement = recordedMeasurement;
+            
+            // Close the record panel
+            recordPanel.classList.remove('open');
+        }
+
+        // --- Event Listeners ---
+        slider.addEventListener('input', function() {
+            updateMeasurement(this.value);
+        });
+
+        // Object selection from dropdown
+        document.querySelectorAll('.dropdown-content a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const type = this.getAttribute('data-type');
+                
+                if (type === 'custom') {
+                    customModal.classList.remove('hidden');
+                } else {
+                    const dimensions = JSON.parse(this.getAttribute('data-dimensions'));
+                    measureObject(dimensions, type);
+                }
+            });
+        });
+
+        // Rotation buttons
+        rotateLeftBtn.addEventListener('click', () => rotateObject(-15));
+        rotateRightBtn.addEventListener('click', () => rotateObject(15));
+
+        // Angle buttons
+        angleBtnElements.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const angle = parseInt(this.getAttribute('data-angle'));
+                rotateObject(angle - currentAngle); // Rotate to the specific angle
+                recordAngleMeasurement(angle);
+                
+                // Highlight the clicked button
+                angleBtnElements.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Tab switching
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                switchTab(button.dataset.tab);
+            });
+        });
+
+        // Theory toggle
+        let theoryVisible = false;
+        theoryToggle.addEventListener('click', function() {
+            theoryVisible = !theoryVisible;
+            theoryPanel.classList.toggle('open');
+            theoryToggle.innerHTML = theoryVisible ? 
+                '<i class="fas fa-times mr-1"></i>Hide Theory' : 
+                '<i class="fas fa-graduation-cap mr-1"></i>Theory';
+        });
+
+        // Custom measurement modal
+        customApply.addEventListener('click', function() {
+            const value = parseFloat(customValue.value);
+            if (value && value > 0 && value <= 100) {
+                // For custom objects, use the same value for all angles
+                const dimensions = {"0": value, "90": value, "180": value, "270": value, "360": value};
+                measureObject(dimensions, 'custom-object');
+                customModal.classList.add('hidden');
+            }
+        });
+
+        customCancel.addEventListener('click', function() {
+            customModal.classList.add('hidden');
+        });
+
+        resetBtn.addEventListener('click', resetMeasurement);
+        
+        // Instruction toggle
+        let instructionsVisible = false;
+        instructionToggle.addEventListener('click', function() {
+            instructionsVisible = !instructionsVisible;
+            instructionPanel.classList.toggle('open');
+            instructionToggle.innerHTML = instructionsVisible ? 
+                '<i class="fas fa-times mr-1"></i>Hide Instructions' : 
+                '<i class="fas fa-question-circle mr-1"></i>Show Instructions';
+        });
+        
+        // Record toggle
+        let recordVisible = false;
+        recordToggle.addEventListener('click', function() {
+            recordMeasurement();
+        });
+        
+        recordApply.addEventListener('click', applyRecordedMeasurement);
+        
+        recordCancel.addEventListener('click', function() {
+            recordPanel.classList.remove('open');
+        });
+        
+        // --- Dragging functionality for the vernier scale ---
+        let isDragging = false;
+        let startX, startLeft, startSliderVal;
+
+        const startDrag = function(e) {
+            if (isObjectMeasured) return;
+            isDragging = true;
+            vernierScale.style.cursor = 'grabbing';
+            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            startLeft = vernierScale.offsetLeft;
+            startSliderVal = parseInt(slider.value);
+            vernierScale.style.transition = 'none';
+        };
+
+        const onDrag = function(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const dx = currentX - startX;
+            
+            const maxPixelValue = scaleWidth - vernierScale.offsetWidth + 20;
+            const dSlider = (dx / maxPixelValue) * 1000;
+
+            let newSliderValue = startSliderVal + dSlider;
+            newSliderValue = Math.max(0, Math.min(1000, newSliderValue));
+            
+            slider.value = newSliderValue;
+            updateMeasurement(newSliderValue);
+        };
+
+        const stopDrag = function() {
+            if (!isDragging) return;
+            isDragging = false;
+            vernierScale.style.cursor = 'grab';
+            vernierScale.style.transition = '';
+        };
+
+        vernierScale.addEventListener('mousedown', startDrag);
+        vernierScale.addEventListener('touchstart', startDrag);
+
+        window.addEventListener('mousemove', onDrag);
+        window.addEventListener('touchmove', onDrag, { passive: false });
+
+        window.addEventListener('mouseup', stopDrag);
+        window.addEventListener('touchend', stopDrag);
+
+        // --- Initialization ---
+        window.addEventListener('resize', generateScales);
+        
+        window.addEventListener('load', function() {
+            generateScales();
+            resetMeasurement();
+        });
+    </script>
+</body>
+</html>

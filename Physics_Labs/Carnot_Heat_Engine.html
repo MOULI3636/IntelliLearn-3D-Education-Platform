@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Carnot Heat Engine</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px; /* Increased max-width */
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .controls {
+            flex: 1;
+            min-width: 300px;
+        }
+        .simulation {
+            flex: 2;
+            min-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        #pvDiagram {
+            border: 1px solid #bdc3c7;
+            background-color: #fdfdfd;
+            border-radius: 5px;
+        }
+        .results {
+            margin-top: 20px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .result-item {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .result-item strong {
+            color: #2980b9;
+        }
+        .value {
+            font-weight: bold;
+            color: #c0392b;
+            float: right;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* New styles for physical engine visualization */
+        .physical-engine {
+            width: 100%;
+            margin-top: 30px;
+        }
+        .physical-engine h3 {
+            text-align: center;
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        .stages-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .stage {
+            text-align: center;
+        }
+        .stage canvas {
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .stage p {
+            margin: 5px 0 0 0;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Interactive Carnot Heat Engine ⚙️</h1>
+
+    <div class="container">
+        <div class="controls">
+            <h2>Parameters</h2>
+            <p>Adjust the sliders below to see how they affect the engine's P-V cycle and its performance.</p>
+            
+            <div class="control-group">
+                <label for="thSlider">Hot Reservoir Temp ($T_H$): <span class="value" id="thValue">600</span> K</label>
+                <input type="range" id="thSlider" min="350" max="1000" value="600">
+            </div>
+
+            <div class="control-group">
+                <label for="tcSlider">Cold Reservoir Temp ($T_C$): <span class="value" id="tcValue">300</span> K</label>
+                <input type="range" id="tcSlider" min="100" max="550" value="300">
+            </div>
+
+            <div class="control-group">
+                <label for="vaSlider">Volume at 'a' ($V_a$): <span class="value" id="vaValue">1.0</span> m³</label>
+                <input type="range" id="vaSlider" min="0.5" max="2.0" value="1.0" step="0.1">
+            </div>
+
+            <div class="control-group">
+                <label for="vbSlider">Volume at 'b' ($V_b$): <span class="value" id="vbValue">2.0</span> m³</label>
+                <input type="range" id="vbSlider" min="1.0" max="4.0" value="2.0" step="0.1">
+            </div>
+
+            <button id="resetButton">Reset to Defaults</button>
+        </div>
+
+        <div class="simulation">
+            <canvas id="pvDiagram" width="600" height="400"></canvas>
+            <div class="results">
+                <div class="result-item"><strong>Heat Absorbed ($Q_H$):</strong> <span id="qh_val">0</span> J</div>
+                <div class="result-item"><strong>Heat Rejected ($Q_C$):</strong> <span id="qc_val">0</span> J</div>
+                <div class="result-item"><strong>Net Work Done ($W_{net}$):</strong> <span id="wnet_val">0</span> J</div>
+                <div class="result-item"><strong>Efficiency ($\eta$):</strong> <span id="eff_val">0</span> %</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="physical-engine container">
+        <h3>Physical Representation of the Cycle</h3>
+        <div class="stages-container">
+            <div class="stage">
+                <p>1. Isothermal Expansion (a → b)</p>
+                <canvas id="stage1Canvas" width="150" height="200"></canvas>
+            </div>
+            <div class="stage">
+                <p>2. Adiabatic Expansion (b → c)</p>
+                <canvas id="stage2Canvas" width="150" height="200"></canvas>
+            </div>
+            <div class="stage">
+                <p>3. Isothermal Compression (c → d)</p>
+                <canvas id="stage3Canvas" width="150" height="200"></canvas>
+            </div>
+            <div class="stage">
+                <p>4. Adiabatic Compression (d → a)</p>
+                <canvas id="stage4Canvas" width="150" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Element References ---
+            const canvas = document.getElementById('pvDiagram');
+            const ctx = canvas.getContext('2d');
+            
+            const stageCanvases = {
+                s1: document.getElementById('stage1Canvas').getContext('2d'),
+                s2: document.getElementById('stage2Canvas').getContext('2d'),
+                s3: document.getElementById('stage3Canvas').getContext('2d'),
+                s4: document.getElementById('stage4Canvas').getContext('2d'),
+            };
+
+            const thSlider = document.getElementById('thSlider');
+            const tcSlider = document.getElementById('tcSlider');
+            const vaSlider = document.getElementById('vaSlider');
+            const vbSlider = document.getElementById('vbSlider');
+            
+            const thValue = document.getElementById('thValue');
+            const tcValue = document.getElementById('tcValue');
+            const vaValue = document.getElementById('vaValue');
+            const vbValue = document.getElementById('vbValue');
+
+            const qh_val = document.getElementById('qh_val');
+            const qc_val = document.getElementById('qc_val');
+            const wnet_val = document.getElementById('wnet_val');
+            const eff_val = document.getElementById('eff_val');
+            
+            const resetButton = document.getElementById('resetButton');
+
+            // --- Constants & Settings ---
+            const n = 1, R = 8.314, gamma = 5 / 3;
+            const pvPadding = 50;
+
+            let state = { Th: 600, Tc: 300, Va: 1.0, Vb: 2.0 };
+
+            function updateSimulation() {
+                // 1. Read values from sliders
+                state.Th = parseFloat(thSlider.value);
+                state.Tc = parseFloat(tcSlider.value);
+                state.Va = parseFloat(vaSlider.value);
+                state.Vb = parseFloat(vbSlider.value);
+
+                if (state.Th <= state.Tc) {
+                    state.Tc = state.Th - 1; tcSlider.value = state.Tc;
+                }
+                if (state.Vb <= state.Va) {
+                    state.Vb = state.Va + 0.1; vbSlider.value = state.Vb;
+                }
+                
+                thValue.textContent = state.Th.toFixed(0);
+                tcValue.textContent = state.Tc.toFixed(0);
+                vaValue.textContent = state.Va.toFixed(1);
+                vbValue.textContent = state.Vb.toFixed(1);
+
+                // 2. Calculate cycle points
+                const Pa = (n * R * state.Th) / state.Va;
+                const Pb = (n * R * state.Th) / state.Vb;
+                const Vc = state.Vb * Math.pow(state.Th / state.Tc, 1 / (gamma - 1));
+                const Pc = (n * R * state.Tc) / Vc;
+                const Vd = state.Va * Math.pow(state.Th / state.Tc, 1 / (gamma - 1));
+                const Pd = (n * R * state.Tc) / Vd;
+
+                const points = {
+                    a: { V: state.Va, P: Pa }, b: { V: state.Vb, P: Pb },
+                    c: { V: Vc, P: Pc },     d: { V: Vd, P: Pd },
+                };
+
+                // 3. Calculate thermodynamic quantities
+                const Qh = n * R * state.Th * Math.log(state.Vb / state.Va);
+                const Qc = n * R * state.Tc * Math.log(Vc / Vd);
+                const Wnet = Qh - Qc;
+                const efficiency = (Wnet / Qh) * 100;
+
+                qh_val.textContent = Qh.toFixed(1);
+                qc_val.textContent = Qc.toFixed(1);
+                wnet_val.textContent = Wnet.toFixed(1);
+                eff_val.textContent = efficiency.toFixed(2);
+
+                // 4. Draw P-V diagram and physical engine states
+                drawPVDiagram(points);
+                drawPhysicalEngine(points);
+            }
+
+            function drawPVDiagram(points) {
+                const width = canvas.width;
+                const height = canvas.height;
+                ctx.clearRect(0, 0, width, height);
+
+                const maxV = points.c.V * 1.1;
+                const maxP = points.a.P * 1.1;
+
+                const toCanvasX = (v) => pvPadding + (v / maxV) * (width - 2 * pvPadding);
+                const toCanvasY = (p) => height - pvPadding - (p / maxP) * (height - 2 * pvPadding);
+
+                // Draw Axes
+                ctx.beginPath();
+                ctx.moveTo(pvPadding, pvPadding / 2);
+                ctx.lineTo(pvPadding, height - pvPadding);
+                ctx.lineTo(width - pvPadding / 2, height - pvPadding);
+                ctx.strokeStyle = '#333'; ctx.stroke();
+                ctx.fillStyle = '#333'; ctx.font = '14px Arial';
+                ctx.fillText('Pressure (P)', pvPadding / 4, height / 2,);
+                ctx.fillText('Volume (V)', width / 2 - 20, height - pvPadding / 3);
+
+                // Draw Curves
+                const drawCurve = (start, end, pFunc) => {
+                    ctx.beginPath();
+                    ctx.moveTo(toCanvasX(start.V), toCanvasY(start.P));
+                    const steps = 100;
+                    const dV = (end.V - start.V) / steps;
+                    for (let i = 1; i <= steps; i++) {
+                        const V = start.V + i * dV;
+                        ctx.lineTo(toCanvasX(V), toCanvasY(pFunc(V)));
+                    }
+                    ctx.strokeStyle = '#3498db'; ctx.lineWidth = 3; ctx.stroke(); ctx.lineWidth = 1;
+                };
+                
+                drawCurve(points.a, points.b, (V) => (n * R * state.Th) / V);
+                drawCurve(points.b, points.c, (V) => (points.b.P * Math.pow(points.b.V, gamma)) / Math.pow(V, gamma));
+                drawCurve(points.c, points.d, (V) => (n * R * state.Tc) / V);
+                drawCurve(points.d, points.a, (V) => (points.d.P * Math.pow(points.d.V, gamma)) / Math.pow(V, gamma));
+                
+                // Draw Points
+                Object.entries(points).forEach(([label, point]) => {
+                    const x = toCanvasX(point.V);
+                    const y = toCanvasY(point.P);
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#c0392b'; ctx.fill();
+                    ctx.fillStyle = '#000'; ctx.font = 'bold 16px Arial';
+                    ctx.fillText(label, x + 8, y + 8);
+                });
+            }
+
+            function drawPhysicalEngine(points) {
+                const allVolumes = Object.values(points).map(p => p.V);
+                const minV = Math.min(...allVolumes);
+                const maxV = Math.max(...allVolumes);
+                
+                const getPistonY = (v) => 130 - 100 * (v - minV) / (maxV - minV + 0.1);
+
+                // Stage a -> b
+                drawEngineState(stageCanvases.s1, getPistonY(points.a), 'source', state.Th);
+                // Stage b -> c
+                drawEngineState(stageCanvases.s2, getPistonY(points.b), 'insulator', 'Q=0');
+                // Stage c -> d
+                drawEngineState(stageCanvases.s3, getPistonY(points.c), 'sink', state.Tc);
+                // Stage d -> a
+                drawEngineState(stageCanvases.s4, getPistonY(points.d), 'insulator', 'Q=0');
+            }
+            
+            function drawEngineState(s_ctx, pistonY, baseType, baseLabel) {
+                const w = s_ctx.canvas.width;
+                const h = s_ctx.canvas.height;
+                s_ctx.clearRect(0, 0, w, h);
+                
+                // Base
+                const baseColors = { source: '#e74c3c', sink: '#3498db', insulator: '#95a5a6' };
+                s_ctx.fillStyle = baseColors[baseType];
+                s_ctx.fillRect(0, 170, w, 30);
+                s_ctx.fillStyle = '#fff';
+                s_ctx.font = 'bold 14px Arial';
+                s_ctx.textAlign = 'center';
+                const labelText = baseType === 'source' ? `TH = ${baseLabel} K` : (baseType === 'sink' ? `TC = ${baseLabel} K` : 'Insulator');
+                s_ctx.fillText(labelText, w / 2, 190);
+
+                // Cylinder Walls (insulated)
+                s_ctx.fillStyle = '#bdc3c7'; // Grey for insulation
+                s_ctx.fillRect(20, 20, 10, 150); // Left wall
+                s_ctx.fillRect(w - 30, 20, 10, 150); // Right wall
+                
+                // Gas Area (with conductive base)
+                s_ctx.fillStyle = '#ecf0f1';
+                s_ctx.fillRect(30, pistonY, w - 60, 170 - pistonY);
+                
+                // Piston (insulating)
+                s_ctx.fillStyle = '#7f8c8d';
+                s_ctx.fillRect(25, pistonY - 10, w - 50, 10);
+                s_ctx.fillRect(w / 2 - 5, pistonY - 20, 10, 10); // Handle
+                
+                // Heat Flow Arrow
+                s_ctx.font = 'bold 20px Arial';
+                if (baseType === 'source') {
+                    s_ctx.fillStyle = '#c0392b';
+                    s_ctx.fillText('↓', w / 2, 40);
+                    s_ctx.fillText('QH', w / 2, 60);
+                } else if (baseType === 'sink') {
+                    s_ctx.fillStyle = '#2980b9';
+                    s_ctx.fillText('↑', w / 2, 130);
+                    s_ctx.fillText('QC', w / 2, 110);
+                }
+            }
+
+
+            function setDefaultValues() {
+                thSlider.value = 600;
+                tcSlider.value = 300;
+                vaSlider.value = 1.0;
+                vbSlider.value = 2.0;
+                updateSimulation();
+            }
+
+            // --- Event Listeners & Initial Call ---
+            [thSlider, tcSlider, vaSlider, vbSlider].forEach(slider => {
+                slider.addEventListener('input', updateSimulation);
+            });
+            resetButton.addEventListener('click', setDefaultValues);
+
+            updateSimulation();
+        });
+    </script>
+
+</body>
+</html>

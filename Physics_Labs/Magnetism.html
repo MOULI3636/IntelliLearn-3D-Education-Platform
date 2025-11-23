@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetism Simulation Lab</title>
+    <!-- Tailwind CSS for a clean, modern interface -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+            background-color: white;
+            overflow: hidden; /* Prevent scrolling */
+            margin: 0;
+            padding: 0;
+        }
+        canvas {
+            cursor: crosshair;
+            background-color: white;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .control-panel {
+            background-color: #f0fdf4;
+            border: 2px solid #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            border-radius: 12px;
+        }
+        .control-panel button {
+            transition: all 0.2s ease-in-out;
+            border-radius: 8px;
+            border: 1px solid #10b981;
+            background-color: #f0fdf4;
+        }
+        .control-panel button:hover {
+            background-color: #dcfce7;
+            transform: translateY(-2px);
+        }
+        .control-panel button.active {
+            background-color: #10b981;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .theory-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: #f0fdf4;
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #10b981;
+        }
+        .filing {
+            position: absolute;
+            width: 6px;
+            height: 1px;
+            background-color: #374151;
+            transform-origin: center;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+        }
+        .field-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.8));
+            transform-origin: left center;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+        .control-card {
+            background-color: #f0fdf4;
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid #dcfce7;
+        }
+        .back-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            background-color: #10b981;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 20;
+            cursor: pointer;
+            border: none;
+        }
+        .simulation-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            max-width: 1200px;
+            height: 85vh;
+            gap: 1rem;
+            padding: 0.5rem;
+        }
+        .controls-section {
+            flex: 1;
+            max-width: 400px;
+        }
+        .canvas-section {
+            flex: 2;
+            min-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- <button class="back-menu">Back Menu</button> -->
+    
+    <div class="flex flex-col items-center w-full h-screen p-2">
+        <h1 class="text-3xl font-bold text-[#10b981] mb-1">Interactive Magnetism Lab</h1>
+        <p class="text-md text-gray-600 mb-4">Explore magnetic fields, forces, and properties through hands-on experimentation</p>
+
+        <div class="simulation-container">
+            <!-- Controls Section -->
+            <div class="controls-section">
+                <div class="control-panel p-4 h-full overflow-y-auto">
+                    <h2 class="text-xl font-semibold mb-3 text-[#10b981] border-b-2 border-[#10b981] pb-2">Experiment Controls</h2>
+                    
+                    <div class="control-grid mb-4">
+                        <div class="control-card">
+                            <button id="toggleCompassBtn" class="w-full text-left py-2 px-3 font-medium rounded-lg active pulse">Show Compass</button>
+                            <p class="text-xs text-gray-600 mt-1">See how the compass responds to magnetic fields</p>
+                        </div>
+                        
+                        <div class="control-card">
+                            <button id="sprinkleFilingsBtn" class="w-full text-left py-2 px-3 font-medium rounded-lg">Sprinkle Iron Filings</button>
+                            <p class="text-xs text-gray-600 mt-1">Visualize magnetic field patterns</p>
+                        </div>
+                        
+                        <div class="control-card">
+                            <button id="showFieldLinesBtn" class="w-full text-left py-2 px-3 font-medium rounded-lg">Show Field Lines</button>
+                            <p class="text-xs text-gray-600 mt-1">See the direction of magnetic forces</p>
+                        </div>
+                        
+                        <div class="control-card">
+                            <button id="flipPolarityBtn" class="w-full text-left py-2 px-3 font-medium rounded-lg">Flip Polarity</button>
+                            <p class="text-xs text-gray-600 mt-1">Reverse north and south poles</p>
+                        </div>
+                        
+                        <div class="control-card">
+                            <button id="theoryBtn" class="w-full text-left py-2 px-3 font-medium rounded-lg">Theory & Concepts</button>
+                            <p class="text-xs text-gray-600 mt-1">Learn the science behind magnetism</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div id="fieldMeter" class="p-3 bg-[#f0fdf4] rounded-lg border border-[#10b981]">
+                            <h3 class="font-semibold text-[#10b981] text-md">Field Meter</h3>
+                            <div class="text-sm text-gray-700 mt-2 space-y-1">
+                                <p>Strength: <span id="fieldStrength">0.00</span> T (Tesla)</p>
+                                <p>Direction: <span id="fieldDirection">0</span>° from horizontal</p>
+                            </div>
+                            <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div id="strengthBar" class="h-full bg-[#10b981] rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-[#f0fdf4] rounded-lg border border-[#10b981]">
+                            <h3 class="font-semibold text-[#10b981] text-md">Quick Tips</h3>
+                            <ul class="text-xs text-gray-700 mt-2 list-disc pl-4 space-y-1">
+                                <li>Drag the magnet to reposition it</li>
+                                <li>Move the compass to different locations</li>
+                                <li>Hover over any area to see field measurements</li>
+                                <li>Try flipping polarity to see how it changes field direction</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Section -->
+            <div class="canvas-section">
+                <div class="relative w-full h-full">
+                    <canvas id="simulationCanvas"></canvas>
+                    <div id="tooltip" class="tooltip"></div>
+                    <div id="fieldLinesContainer" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theory Modal -->
+    <div id="theoryModal" class="theory-modal">
+        <span class="close-btn" id="closeTheory">&times;</span>
+        <h2 class="text-2xl font-bold text-[#10b981] mb-4">Magnetism Theory</h2>
+        
+        <div class="theory-content">
+            <h3 class="text-xl font-semibold mt-4 text-[#059669]">What is Magnetism?</h3>
+            <p class="mt-2">Magnetism is a force that can attract (pull closer) or repel (push away) objects that have magnetic material like iron inside them. Magnets have two poles: north and south. Opposite poles attract each other, while like poles repel.</p>
+            
+            <h3 class="text-xl font-semibold mt-4 text-[#059669]">Magnetic Fields</h3>
+            <p class="mt-2">A magnetic field is the area around a magnet where magnetic forces act. You can't see magnetic fields, but you can observe their effects. Iron filings align themselves along magnetic field lines, making the field visible.</p>
+            <p class="mt-2">Field lines emerge from the north pole and enter through the south pole. The closer together the field lines are, the stronger the magnetic field in that region.</p>
+            
+            <h3 class="text-xl font-semibold mt-4 text-[#059669]">Earth's Magnetic Field</h3>
+            <p class="mt-2">Our planet acts like a giant magnet with a north and south magnetic pole. This is why compasses work - the needle aligns with Earth's magnetic field, pointing toward magnetic north.</p>
+            
+            <h3 class="text-xl font-semibold mt-4 text-[#059669]">Types of Magnets</h3>
+            <ul class="list-disc pl-5 mt-2">
+                <li><strong>Permanent magnets</strong> retain their magnetic properties (like bar magnets)</li>
+                <li><strong>Temporary magnets</strong> become magnetized only when in a magnetic field</li>
+                <li><strong>Electromagnets</strong> are created by electric current flowing through wire</li>
+            </ul>
+            
+            <h3 class="text-xl font-semibold mt-4 text-[#059669]">Key Principles</h3>
+            <ol class="list-decimal pl-5 mt-2">
+                <li>All magnets have north and south poles</li>
+                <li>Like poles repel, opposite poles attract</li>
+                <li>Magnetic forces act at a distance</li>
+                <li>Magnetic field lines form closed loops</li>
+                <li>The strength of a magnetic field decreases with distance</li>
+            </ol>
+            
+            <h3 class="text-xl font-semibold mt-4 text-[#059669]">Real-World Applications</h3>
+            <p class="mt-2">Magnetism is used in many everyday devices:</p>
+            <ul class="list-disc pl-5 mt-2">
+                <li>Compasses for navigation</li>
+                <li>Electric motors and generators</li>
+                <li>MRI machines in medicine</li>
+                <li>Magnetic storage like hard drives</li>
+                <li>Maglev trains that float on magnetic fields</li>
+                <li>Credit cards with magnetic strips</li>
+            </ul>
+            
+            <div class="mt-6 p-3 bg-[#dcfce7] rounded border border-[#10b981]">
+                <h4 class="font-semibold text-[#059669]">Try This Experiment:</h4>
+                <p class="mt-1">1. Sprinkle iron filings to see the field pattern</p>
+                <p>2. Move the compass around the magnet</p>
+                <p>3. Flip the magnet's polarity and observe changes</p>
+                <p>4. Notice how field strength changes with distance</p>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('simulationCanvas');
+            const ctx = canvas.getContext('2d');
+            const tooltip = document.getElementById('tooltip');
+            const fieldLinesContainer = document.getElementById('fieldLinesContainer');
+            const strengthBar = document.getElementById('strengthBar');
+
+            // --- Control Panel Elements ---
+            const toggleCompassBtn = document.getElementById('toggleCompassBtn');
+            const sprinkleFilingsBtn = document.getElementById('sprinkleFilingsBtn');
+            const showFieldLinesBtn = document.getElementById('showFieldLinesBtn');
+            const flipPolarityBtn = document.getElementById('flipPolarityBtn');
+            const theoryBtn = document.getElementById('theoryBtn');
+            const fieldStrengthEl = document.getElementById('fieldStrength');
+            const fieldDirectionEl = document.getElementById('fieldDirection');
+            const theoryModal = document.getElementById('theoryModal');
+            const overlay = document.getElementById('overlay');
+            const closeTheory = document.getElementById('closeTheory');
+            const backMenuBtn = document.querySelector('.back-menu');
+
+            // --- State Variables ---
+            let showCompass = true;
+            let showFilings = false;
+            let showFieldLines = false;
+            let ironFilings = [];
+            const FILING_COUNT = 3000;
+            let fieldLines = [];
+
+            let magnet = {
+                x: 0, y: 0, width: 150, height: 40, angle: 0,
+                isDragging: false, dragOffsetX: 0, dragOffsetY: 0, isNorthRed: true
+            };
+
+            let compass = {
+                x: 0, y: 0, radius: 30, angle: 0,
+                isDragging: false, dragOffsetX: 0, dragOffsetY: 0
+            };
+
+            let mouse = { x: 0, y: 0, isOverCanvas: false };
+
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                resetSimulationState();
+            }
+
+            function resetSimulationState() {
+                magnet.x = canvas.width / 2;
+                magnet.y = canvas.height / 2;
+                magnet.angle = 0;
+                
+                compass.x = canvas.width / 2 + 200;
+                compass.y = canvas.height / 2;
+                
+                ironFilings = [];
+                fieldLines = [];
+                if(showFilings) sprinkleFilings();
+                if(showFieldLines) generateFieldLines();
+
+                draw();
+            }
+
+            function getMagnetPoles() {
+                const halfWidth = magnet.width / 2;
+                const cosA = Math.cos(magnet.angle);
+                const sinA = Math.sin(magnet.angle);
+                
+                const northX = magnet.x + (magnet.isNorthRed ? -halfWidth : halfWidth) * cosA;
+                const northY = magnet.y + (magnet.isNorthRed ? -halfWidth : halfWidth) * sinA;
+                const southX = magnet.x + (magnet.isNorthRed ? halfWidth : -halfWidth) * cosA;
+                const southY = magnet.y + (magnet.isNorthRed ? halfWidth : -halfWidth) * sinA;
+
+                return {
+                    north: { x: northX, y: northY },
+                    south: { x: southX, y: southY }
+                };
+            }
+
+            function calculateFieldAtPoint(px, py) {
+                const { north, south } = getMagnetPoles();
+                const poleStrength = 10000;
+
+                const dxN = px - north.x;
+                const dyN = py - north.y;
+                const rN2 = dxN * dxN + dyN * dyN;
+                const rN = Math.sqrt(rN2);
+
+                const dxS = px - south.x;
+                const dyS = py - south.y;
+                const rS2 = dxS * dxS + dyS * dyS;
+                const rS = Math.sqrt(rS2);
+
+                if (rN < 1 || rS < 1) return { bx: 0, by: 0, magnitude: 0, angle: 0 };
+
+                const bx = poleStrength * dxN / (rN * rN2) - poleStrength * dxS / (rS * rS2);
+                const by = poleStrength * dyN / (rN * rN2) - poleStrength * dyS / (rS * rS2);
+                
+                const magnitude = Math.sqrt(bx * bx + by * by);
+                const angle = Math.atan2(by, bx);
+
+                return { bx, by, magnitude, angle };
+            }
+            
+            function generateFieldLines() {
+                fieldLinesContainer.innerHTML = '';
+                fieldLines = [];
+                
+                const { north, south } = getMagnetPoles();
+                const steps = 20;
+                
+                // Create field lines emanating from north pole
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    let x = north.x;
+                    let y = north.y;
+                    const linePoints = [{x, y}];
+                    
+                    for (let j = 0; j < steps; j++) {
+                        const field = calculateFieldAtPoint(x, y);
+                        if (field.magnitude < 0.1) break;
+                        
+                        const stepSize = 15;
+                        x += Math.cos(field.angle) * stepSize;
+                        y += Math.sin(field.angle) * stepSize;
+                        linePoints.push({x, y});
+                    }
+                    
+                    fieldLines.push(linePoints);
+                }
+                
+                // Create field lines going into south pole
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    let x = south.x + Math.cos(angle) * 30;
+                    let y = south.y + Math.sin(angle) * 30;
+                    const linePoints = [{x, y}];
+                    
+                    for (let j = 0; j < steps; j++) {
+                        const field = calculateFieldAtPoint(x, y);
+                        if (field.magnitude < 0.1) break;
+                        
+                        const stepSize = 15;
+                        x += Math.cos(field.angle) * stepSize;
+                        y += Math.sin(field.angle) * stepSize;
+                        linePoints.push({x, y});
+                    }
+                    
+                    fieldLines.push(linePoints);
+                }
+                
+                drawFieldLines();
+            }
+            
+            function drawFieldLines() {
+                fieldLinesContainer.innerHTML = '';
+                
+                fieldLines.forEach(points => {
+                    for (let i = 0; i < points.length - 1; i++) {
+                        const p1 = points[i];
+                        const p2 = points[i + 1];
+                        
+                        const dx = p2.x - p1.x;
+                        const dy = p2.y - p1.y;
+                        const length = Math.sqrt(dx * dx + dy * dy);
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        
+                        const line = document.createElement('div');
+                        line.className = 'field-line';
+                        line.style.width = length + 'px';
+                        line.style.left = p1.x + 'px';
+                        line.style.top = p1.y + 'px';
+                        line.style.transform = `rotate(${angle}deg)`;
+                        
+                        fieldLinesContainer.appendChild(line);
+                    }
+                });
+            }
+            
+            // --- Drawing Functions ---
+            function drawMagnet() {
+                ctx.save();
+                ctx.translate(magnet.x, magnet.y);
+                ctx.rotate(magnet.angle);
+                
+                // Magnet shadow
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 4;
+                ctx.shadowOffsetY = 4;
+
+                // South Pole
+                ctx.fillStyle = magnet.isNorthRed ? '#4caf50' : '#f44336';
+                ctx.fillRect(0, -magnet.height / 2, magnet.width / 2, magnet.height);
+                
+                // North Pole
+                ctx.fillStyle = magnet.isNorthRed ? '#f44336' : '#4caf50';
+                ctx.fillRect(-magnet.width / 2, -magnet.height / 2, magnet.width / 2, magnet.height);
+
+                // Magnet outline
+                ctx.shadowColor = 'transparent';
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-magnet.width / 2, -magnet.height / 2, magnet.width, magnet.height);
+
+                // Labels
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('N', -magnet.width / 4, 0);
+                ctx.fillText('S', magnet.width / 4, 0);
+
+                ctx.restore();
+            }
+
+            function drawCompass() {
+                const field = calculateFieldAtPoint(compass.x, compass.y);
+                compass.angle = field.angle;
+
+                ctx.save();
+                ctx.translate(compass.x, compass.y);
+                
+                // Compass shadow
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+                
+                // Casing
+                ctx.beginPath();
+                ctx.arc(0, 0, compass.radius, 0, 2 * Math.PI);
+                ctx.fillStyle = '#f0fdf4';
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Direction markers
+                ctx.fillStyle = '#10b981';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('N', 0, -compass.radius * 0.7);
+                ctx.fillText('S', 0, compass.radius * 0.7);
+                ctx.fillText('E', compass.radius * 0.7, 0);
+                ctx.fillText('W', -compass.radius * 0.7, 0);
+
+                // Needle
+                ctx.rotate(compass.angle);
+                ctx.beginPath();
+                ctx.moveTo(-compass.radius * 0.8, 0);
+                ctx.lineTo(compass.radius * 0.8, 0);
+                ctx.lineTo(compass.radius * 0.7, -3);
+                ctx.moveTo(compass.radius * 0.8, 0);
+                ctx.lineTo(compass.radius * 0.7, 3);
+                ctx.strokeStyle = '#4b5563';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // North tip of needle (red)
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(compass.radius * 0.8, 0);
+                ctx.lineTo(compass.radius * 0.6, 5);
+                ctx.lineTo(compass.radius * 0.6, -5);
+                ctx.closePath();
+                ctx.fillStyle = '#f44336';
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            function sprinkleFilings() {
+                ironFilings = [];
+                for (let i = 0; i < FILING_COUNT; i++) {
+                    ironFilings.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        angle: 0
+                    });
+                }
+            }
+            
+            function drawIronFilings() {
+                if (!ironFilings.length) return;
+                ctx.strokeStyle = '#374151';
+                ctx.lineWidth = 1.5;
+                ironFilings.forEach(filing => {
+                    const field = calculateFieldAtPoint(filing.x, filing.y);
+                    filing.angle = field.angle;
+                    
+                    ctx.save();
+                    ctx.translate(filing.x, filing.y);
+                    ctx.rotate(filing.angle);
+                    ctx.beginPath();
+                    ctx.moveTo(-4, 0);
+                    ctx.lineTo(4, 0);
+                    ctx.stroke();
+                    ctx.restore();
+                });
+            }
+            
+            function updateFieldMeter() {
+                const field = calculateFieldAtPoint(mouse.x, mouse.y);
+                // Normalize magnitude to be more readable
+                const displayStrength = (field.magnitude / 10).toFixed(2);
+                const displayAngle = ((field.angle * 180 / Math.PI) + 360) % 360;
+                fieldStrengthEl.textContent = displayStrength;
+                fieldDirectionEl.textContent = displayAngle.toFixed(0);
+                
+                // Update strength bar (capped at 100%)
+                const strengthPercentage = Math.min(field.magnitude / 50 * 100, 100);
+                strengthBar.style.width = strengthPercentage + '%';
+                
+                // Update tooltip
+                if (mouse.isOverCanvas) {
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = (mouse.x + 10) + 'px';
+                    tooltip.style.top = (mouse.y + 10) + 'px';
+                    tooltip.innerHTML = `Strength: ${displayStrength} T<br>Direction: ${displayAngle.toFixed(0)}°`;
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw a subtle grid for reference
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.1)';
+                ctx.lineWidth = 1;
+                const gridSize = 50;
+                
+                for (let x = 0; x <= canvas.width; x += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                
+                for (let y = 0; y <= canvas.height; y += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                if (showFilings) drawIronFilings();
+                drawMagnet();
+                if (showCompass) drawCompass();
+                updateFieldMeter();
+            }
+
+            function animate() {
+                draw();
+                requestAnimationFrame(animate);
+            }
+
+            // --- Event Listeners ---
+            function getMousePos(evt) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: evt.clientX - rect.left,
+                    y: evt.clientY - rect.top
+                };
+            }
+            
+            function isPointInRect(px, py, rect) {
+                 // We need to check against the rotated rectangle, which is complex.
+                 // A simpler collision check is to see if the distance to the center is roughly within bounds.
+                 const dx = px - rect.x;
+                 const dy = py - rect.y;
+                 return Math.abs(dx) < rect.width / 1.5 && Math.abs(dy) < rect.height / 1.5;
+            }
+
+            canvas.addEventListener('pointerdown', e => {
+                const pos = getMousePos(e);
+                
+                // Check for dragging compass
+                const dxCompass = pos.x - compass.x;
+                const dyCompass = pos.y - compass.y;
+                if (Math.sqrt(dxCompass*dxCompass + dyCompass*dyCompass) < compass.radius) {
+                    compass.isDragging = true;
+                    compass.dragOffsetX = dxCompass;
+                    compass.dragOffsetY = dyCompass;
+                    return;
+                }
+
+                // Check for dragging magnet
+                if (isPointInRect(pos.x, pos.y, magnet)) {
+                    magnet.isDragging = true;
+                    magnet.dragOffsetX = pos.x - magnet.x;
+                    magnet.dragOffsetY = pos.y - magnet.y;
+                }
+            });
+
+            canvas.addEventListener('pointermove', e => {
+                const pos = getMousePos(e);
+                mouse.x = pos.x;
+                mouse.y = pos.y;
+                mouse.isOverCanvas = true;
+                
+                if (compass.isDragging) {
+                    compass.x = pos.x - compass.dragOffsetX;
+                    compass.y = pos.y - compass.dragOffsetY;
+                }
+                
+                if (magnet.isDragging) {
+                    magnet.x = pos.x - magnet.dragOffsetX;
+                    magnet.y = pos.y - magnet.dragOffsetY;
+                    if (showFieldLines) generateFieldLines();
+                }
+            });
+
+            canvas.addEventListener('pointerup', () => {
+                magnet.isDragging = false;
+                compass.isDragging = false;
+            });
+            
+            canvas.addEventListener('pointerleave', () => {
+                 magnet.isDragging = false;
+                 compass.isDragging = false;
+                 mouse.isOverCanvas = false;
+                 tooltip.style.display = 'none';
+            });
+
+            canvas.addEventListener('pointerenter', () => {
+                mouse.isOverCanvas = true;
+            });
+
+            // --- Button Controls ---
+            toggleCompassBtn.addEventListener('click', () => {
+                showCompass = !showCompass;
+                toggleCompassBtn.classList.toggle('active', showCompass);
+                toggleCompassBtn.classList.toggle('pulse', showCompass);
+            });
+            
+            sprinkleFilingsBtn.addEventListener('click', () => {
+                showFilings = !showFilings;
+                sprinkleFilingsBtn.classList.toggle('active', showFilings);
+                if(showFilings && !ironFilings.length) {
+                    sprinkleFilings();
+                }
+            });
+            
+            showFieldLinesBtn.addEventListener('click', () => {
+                showFieldLines = !showFieldLines;
+                showFieldLinesBtn.classList.toggle('active', showFieldLines);
+                if (showFieldLines) {
+                    generateFieldLines();
+                } else {
+                    fieldLinesContainer.innerHTML = '';
+                }
+            });
+            
+            flipPolarityBtn.addEventListener('click', () => {
+                magnet.isNorthRed = !magnet.isNorthRed;
+                flipPolarityBtn.classList.add('active');
+                setTimeout(() => flipPolarityBtn.classList.remove('active'), 500);
+                if (showFieldLines) generateFieldLines();
+            });
+            
+            theoryBtn.addEventListener('click', () => {
+                theoryModal.style.display = 'block';
+                overlay.style.display = 'block';
+            });
+
+            closeTheory.addEventListener('click', () => {
+                theoryModal.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+            
+            overlay.addEventListener('click', () => {
+                theoryModal.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+            
+            backMenuBtn.addEventListener('click', () => {
+                alert("Back to menu functionality would go here");
+            });
+
+            // --- Initial Setup ---
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Add initial tooltip instructions
+            setTimeout(() => {
+                tooltip.innerHTML = "Drag the magnet or compass to interact!";
+                tooltip.style.display = 'block';
+                tooltip.style.left = (canvas.width/2 - 100) + 'px';
+                tooltip.style.top = '20px';
+                
+                setTimeout(() => {
+                    tooltip.style.display = 'none';
+                }, 5000);
+            }, 1000);
+            
+            animate();
+        });
+    </script>
+</body>
+</html>
