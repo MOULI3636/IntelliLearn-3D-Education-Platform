@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>about me</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+   <style>
+      .profile-section {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         margin-bottom: 3rem;
+      }
+      
+      .profile-image {
+         width: 200px;
+         height: 200px;
+         border-radius: 50%;
+         object-fit: cover;
+         border: 5px solid #8e44ad;
+         margin-bottom: 1.5rem;
+      }
+      
+      .profile-info {
+         text-align: center;
+         margin-bottom: 2rem;
+      }
+      
+      .profile-info h2 {
+         font-size: 2.5rem;
+         color: #333;
+         margin-bottom: 0.5rem;
+      }
+      
+      .profile-info p {
+         font-size: 1.6rem;
+         color: #666;
+      }
+      
+      .profile-details {
+         background: #f9f9f9;
+         padding: 2rem;
+         border-radius: 0.5rem;
+         width: 100%;
+         max-width: 600px;
+         margin: 0 auto;
+      }
+      
+      .detail-item {
+         display: flex;
+         justify-content: space-between;
+         padding: 1rem 0;
+         border-bottom: 1px solid #eee;
+      }
+      
+      .detail-label {
+         font-weight: bold;
+         color: #555;
+      }
+      
+      .detail-value {
+         color: #333;
+      }
+   </style>
+
+</head>
+<body>
+
+<header class="header">
+   
+   <section class="flex">
+
+      <a href="/index.html" class="logo"><i class="fas fa-graduation-cap logo-icon"></i>Eduweb</a>
+
+      <form action="search.html" method="post" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Your_Name</h3>
+         <p class="role">student</p>
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="register.html" class="option-btn">Sign Up</a>
+         </div>
+      </div>
+
+   </section>
+
+</header>   
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Your_Name</h3>
+      <p class="role">student</p>
+      <a href="profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+      <a href="about.html"><i class="fas fa-question"></i><span>about me</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>My Learning</span></a>
+   </nav>
+
+</div>
+
+<section class="about">
+
+   <div class="profile-section">
+      <img src="images/pic-1.jpg" class="profile-image" alt="Profile Picture" id="user-profile-image">
+      <div class="profile-info">
+         <h2 id="user-name">Your Name</h2>
+         <p>Student at Eduweb</p>
+      </div>
+      
+      <div class="profile-details">
+         <div class="detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value" id="user-email">your.email@example.com</span>
+         </div>
+         <div class="detail-item">
+            <span class="detail-label">Member Since:</span>
+            <span class="detail-value" id="join-date">January 2025</span>
+         </div>
+         <div class="detail-item">
+            <span class="detail-label">Courses Enrolled:</span>
+            <span class="detail-value" id="courses-enrolled">3</span>
+         </div>
+         <div class="detail-item">
+            <span class="detail-label">Learning Progress:</span>
+            <span class="detail-value" id="learning-progress">65%</span>
+         </div>
+      </div>
+   </div>
+
+   <div class="row">
+      <div class="image">
+         <img src="images/about-img.svg" alt="">
+      </div>
+
+      <div class="content">
+         <h3>My Learning Journey</h3>
+         <p>I joined Eduweb to enhance my skills and knowledge in various subjects. The platform has provided me with excellent resources and support to achieve my learning goals. With a personalized learning path and expert guidance, I'm making steady progress in my courses.</p>
+         <a href="courses.html" class="inline-btn">view my courses</a>
+      </div>
+   </div>
+
+   <div class="box-container">
+      <div class="box">
+         <i class="fas fa-book-open"></i>
+         <div>
+            <h3 id="completed-lessons">24</h3>
+            <p>lessons completed</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-clock"></i>
+         <div>
+            <h3 id="hours-spent">38</h3>
+            <p>hours of learning</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-certificate"></i>
+         <div>
+            <h3 id="certificates-earned">2</h3>
+            <p>certificates earned</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-star"></i>
+         <div>
+            <h3 id="average-rating">4.7</h3>
+            <p>average rating</p>
+         </div>
+      </div>
+   </div>
+
+</section> 
+
+<section class="reviews">
+   <h1 class="heading">my recent reviews</h1>
+
+   <div class="box-container">
+      <div class="box">
+         <p>
+            "The Web Development course was incredibly comprehensive. I learned so much about modern frameworks and best practices that I could immediately apply to my projects."
+         </p>
+         <div class="student">
+            <img src="images/pic-1.jpg" id="reviewer-image" alt="">
+            <div>
+               <h3 id="reviewer-name">You</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="box">
+         <p>
+            "The instructors explain complex concepts in simple terms, making it easy to understand even the most challenging topics."
+         </p>
+         <div class="student">
+            <img src="images/pic-1.jpg" alt="">
+            <div>
+               <h3>You</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+
+<footer class="footer">
+   &copy; copyright @ 2025 by <span>Code_Crax</span> | all rights reserved!
+</footer>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+<script>
+   // This would normally come from your backend/database
+   // For demo purposes, we'll use sessionStorage to get the registered user data
+   document.addEventListener('DOMContentLoaded', function() {
+      // Check if we have registration data (this would come from your form submission)
+      const userData = {
+         name: sessionStorage.getItem('userName') || 'Your Name',
+         email: sessionStorage.getItem('userEmail') || 'your.email@example.com',
+         profileImage: sessionStorage.getItem('profileImage') || 'images/pic-1.jpg',
+         joinDate: 'January 2025', // This would come from your backend
+         coursesEnrolled: 3,
+         learningProgress: '65%',
+         completedLessons: 24,
+         hoursSpent: 38,
+         certificatesEarned: 2,
+         averageRating: 4.7
+      };
+
+      // Update the page with user data
+      document.getElementById('user-name').textContent = userData.name;
+      document.getElementById('user-email').textContent = userData.email;
+      document.getElementById('user-profile-image').src = userData.profileImage;
+      document.getElementById('reviewer-image').src = userData.profileImage;
+      document.getElementById('join-date').textContent = userData.joinDate;
+      document.getElementById('courses-enrolled').textContent = userData.coursesEnrolled;
+      document.getElementById('learning-progress').textContent = userData.learningProgress;
+      document.getElementById('completed-lessons').textContent = userData.completedLessons;
+      document.getElementById('hours-spent').textContent = userData.hoursSpent;
+      document.getElementById('certificates-earned').textContent = userData.certificatesEarned;
+      document.getElementById('average-rating').textContent = userData.averageRating;
+   });
+</script>
+   
+</body>
+</html>

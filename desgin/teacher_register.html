@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Teacher Registration</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+   <style>
+      .form-container form {
+         max-width: 900px;
+      }
+      
+      .form-row {
+         display: flex;
+         gap: 1.5rem;
+         margin-bottom: 1.5rem;
+      }
+      
+      .form-row .box {
+         flex: 1;
+      }
+      
+      .file-upload {
+         margin-bottom: 1.5rem;
+      }
+      
+      .file-upload label {
+         display: block;
+         margin-bottom: 0.5rem;
+         font-size: 1.6rem;
+         color: #333;
+      }
+      
+      .file-upload .box {
+         width: 100%;
+         padding: 1.2rem 1.4rem;
+         border-radius: 0.5rem;
+         font-size: 1.6rem;
+         color: #777;
+         background: #f9f9f9;
+         border: 0.1rem solid rgba(0,0,0,0.1);
+      }
+      
+      .register-options {
+         display: flex;
+         justify-content: center;
+         margin-bottom: 2rem;
+         border-bottom: 1px solid #eee;
+         padding-bottom: 1rem;
+      }
+      
+      .register-option {
+         padding: 1rem 2rem;
+         margin: 0 1rem;
+         cursor: pointer;
+         font-weight: bold;
+         border-radius: 0.5rem;
+         transition: all 0.3s ease;
+      }
+      
+      .register-option.active {
+         background-color: #8e44ad;
+         color: white;
+      }
+      
+      .register-option:not(.active):hover {
+         background-color: #f5f5f5;
+      }
+   </style>
+</head>
+<body>
+
+<header class="header">
+   
+   <section class="flex">
+
+      <a href="/index.html" class="logo"><i class="fas fa-graduation-cap logo-icon"></i>Eduweb</a>
+
+      <form action="search.html" method="post" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Your_Name</h3>
+         <p class="role">teacher</p>
+         <a href="teacher_profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="teacher_login.html" class="option-btn">login</a>
+            <a href="teacher_register.html" class="option-btn">register</a>
+         </div>
+      </div>
+
+   </section>
+
+</header>   
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Your_Name</h3>
+      <p class="role">teacher</p>
+      <a href="teacher_profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="teacher_dashboard.html"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="teacher_courses.html"><i class="fas fa-book"></i><span>My Courses</span></a>
+      <a href="teacher_students.html"><i class="fas fa-users"></i><span>Students</span></a>
+      <a href="teacher_analytics.html"><i class="fas fa-chart-bar"></i><span>Analytics</span></a>
+   </nav>
+
+</div>
+
+<section class="form-container">
+   <!-- <div class="register-options">
+      <div class="register-option" onclick="window.location.href='register.html'">
+         <i class="fas fa-user-graduate"></i> Student Register
+      </div>
+      <div class="register-option active" onclick="window.location.href='teacher_register.html'">
+         <i class="fas fa-chalkboard-teacher"></i> Teacher Register
+      </div>
+   </div> -->
+
+   <form action="" method="post" enctype="multipart/form-data">
+      <h3>Teacher Registration</h3>
+      
+      <div class="form-row">
+         <div class="box">
+            <p>Your name <span>*</span></p>
+            <input type="text" name="name" placeholder="enter your full name" required maxlength="50" class="box">
+         </div>
+         <div class="box">
+            <p>Your age <span>*</span></p>
+            <input type="number" name="age" placeholder="enter your age" required min="18" max="99" class="box">
+         </div>
+      </div>
+      
+      <div class="form-row">
+         <div class="box">
+            <p>Your email <span>*</span></p>
+            <input type="email" name="email" placeholder="enter your email" required maxlength="50" class="box">
+         </div>
+         <div class="box">
+            <p>Phone number <span>*</span></p>
+            <input type="text" name="phone" placeholder="enter your phone number" required maxlength="15" class="box">
+         </div>
+      </div>
+      
+      <div class="form-row">
+         <div class="box">
+            <p>Current role <span>*</span></p>
+            <input type="text" name="role" placeholder="e.g. Professor, Instructor, etc." required maxlength="50" class="box">
+         </div>
+         <div class="box">
+            <p>Years of experience <span>*</span></p>
+            <input type="number" name="experience" placeholder="years of teaching experience" required min="0" max="60" class="box">
+         </div>
+      </div>
+      
+      <p>Area of expertise <span>*</span></p>
+      <input type="text" name="expertise" placeholder="e.g. Mathematics, Computer Science, etc." required maxlength="100" class="box">
+      
+      <p>Current address <span>*</span></p>
+      <textarea name="address" class="box" placeholder="enter your current address" required maxlength="500" cols="30" rows="5"></textarea>
+      
+      <p>Create password <span>*</span></p>
+      <input type="password" name="pass" placeholder="enter your password" required maxlength="20" class="box">
+      
+      <p>Confirm password <span>*</span></p>
+      <input type="password" name="c_pass" placeholder="confirm your password" required maxlength="20" class="box">
+      
+      <div class="file-upload">
+         <label>Certifications (if any)</label>
+         <input type="file" name="certifications" accept=".pdf,.doc,.docx,.jpg,.png" class="box">
+      </div>
+      
+      <div class="file-upload">
+         <label>Upload your resume <span>*</span></label>
+         <input type="file" name="resume" accept=".pdf,.doc,.docx" required class="box">
+      </div>
+      
+     <div style="display: flex">
+         <input type="submit" value="register now" name="submit" class="btn">
+      <div class="register-option" onclick="window.location.href='register.html' " style="background-color: green; width: 400px; height: 50px;font-size: 17px; color:white; 
+      padding-top: 15px;margin-top:10px;">
+         <i class="fas fa-user-graduate" ></i> Student Register
+      </div>
+     </div>
+      <p>Already have an account? <a href="teacher_login.html">Login now</a></p>
+      
+      <!-- <div class="register-option active" onclick="window.location.href='teacher_register.html'">
+         <i class="fas fa-chalkboard-teacher"></i> Teacher Register
+      </div> -->
+   </form>
+</section>
+
+<footer class="footer">
+   &copy; copyright @ 2025 by <span>Code_Crax</span> | all rights reserved!
+</footer>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Update Profile</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+<header class="header">
+   
+   <section class="flex">
+
+      <a href="index.html" class="logo"><i class="fas fa-graduation-cap logo-icon"></i>Eduweb</a>
+      
+      <form action="search.html" method="post" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="" id="header-profile-img">
+         <h3 class="name" id="header-profile-name">your_name</h3>
+         <p class="role">student</p>
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="home.html" class="option-btn">Logout</a>
+         </div>
+      </div>
+
+   </section>
+
+</header>   
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="" id="sidebar-profile-img">
+      <h3 class="name" id="sidebar-profile-name">your_name</h3>
+      <p class="role">student</p>
+      <a href="profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
+   </nav>
+
+</div>
+
+<section class="form-container">
+
+   <form id="profile-form" action="" method="post" enctype="multipart/form-data">
+      <h3>update profile</h3>
+      <p>update name</p>
+      <input type="text" name="name" id="name" placeholder="Enter your name" maxlength="50" class="box" required>
+      <p>update email</p>
+      <input type="email" name="email" id="email" placeholder="Enter your email" maxlength="50" class="box" required>
+      <p>previous password</p>
+      <input type="password" name="old_pass" placeholder="Enter your old password" maxlength="20" class="box">
+      <p>new password</p>
+      <input type="password" name="new_pass" placeholder="Enter your new password" maxlength="20" class="box" id="new_pass">
+      <p>confirm password</p>
+      <input type="password" name="c_pass" placeholder="Confirm your new password" maxlength="20" class="box" id="confirm_pass">
+      <p>update pic</p>
+      <input type="file" accept="image/*" class="box" name="profile_pic" id="profile_pic">
+      <input type="submit" value="update profile" name="submit" class="btn">
+      <div id="update-message" class="message"></div>
+   </form>
+
+</section>
+
+<footer class="footer">
+   &copy; copyright @ 2025 by <span>Code_Crax</span> | all rights reserved!
+</footer>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+<script>
+   // Load user data when page loads
+   document.addEventListener('DOMContentLoaded', function() {
+      // In a real app, you would fetch this from your backend/database
+      // For demo purposes, we'll use localStorage
+      const userData = JSON.parse(localStorage.getItem('userData')) || {
+         name: 'your_name',
+         email: 'user@example.com',
+         profilePic: 'images/pic-1.jpg'
+      };
+      
+      // Populate form fields
+      document.getElementById('name').value = userData.name;
+      document.getElementById('email').value = userData.email;
+      
+      // Update profile displays
+      updateProfileDisplays(userData.name, userData.profilePic);
+   });
+   
+   // Handle form submission
+   document.getElementById('profile-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const newPass = document.getElementById('new_pass').value;
+      const confirmPass = document.getElementById('confirm_pass').value;
+      const profilePicInput = document.getElementById('profile_pic');
+      
+      // Validate passwords match if changing password
+      if (newPass && newPass !== confirmPass) {
+         document.getElementById('update-message').textContent = "Passwords don't match!";
+         document.getElementById('update-message').style.color = 'red';
+         return;
+      }
+      
+      // Handle profile picture upload
+      let profilePic = 'images/pic-1.jpg'; // default
+      if (profilePicInput.files && profilePicInput.files[0]) {
+         // In a real app, you would upload this to your server
+         // For demo, we'll just use a placeholder
+         profilePic = URL.createObjectURL(profilePicInput.files[0]);
+      }
+      
+      // Save user data (in a real app, this would be an AJAX call to your backend)
+      const userData = {
+         name: name,
+         email: email,
+         profilePic: profilePic
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      // Update profile displays
+      updateProfileDisplays(name, profilePic);
+      
+      // Show success message
+      document.getElementById('update-message').textContent = "Profile updated successfully!";
+      document.getElementById('update-message').style.color = 'green';
+      
+      // Reset form
+      document.getElementById('new_pass').value = '';
+      document.getElementById('confirm_pass').value = '';
+   });
+   
+   function updateProfileDisplays(name, profilePic) {
+      // Update header profile
+      document.getElementById('header-profile-name').textContent = name;
+      document.getElementById('header-profile-img').src = profilePic;
+      
+      // Update sidebar profile
+      document.getElementById('sidebar-profile-name').textContent = name;
+      document.getElementById('sidebar-profile-img').src = profilePic;
+   }
+</script>
+   
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Teacher Login</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+
+   <style>
+      .login-options {
+         display: flex;
+         justify-content: center;
+         margin-bottom: 2rem;
+         border-bottom: 1px solid #eee;
+         padding-bottom: 1rem;
+      }
+      
+      .login-option {
+         padding: 1rem 2rem;
+         margin: 0 1rem;
+         cursor: pointer;
+         font-weight: bold;
+         border-radius: 0.5rem;
+         transition: all 0.3s ease;
+         background-color: hsl(170, 75%, 41%);
+         color: white;
+      }
+      
+      .login-option.active {
+         background-color: #8e44ad;
+         color: white;
+      }
+      
+      .login-option:not(.active):hover {
+         background-color: #02503a;
+      }
+      
+      .teacher-features {
+         margin-top: 2rem;
+         padding: 1.5rem;
+         background-color: #f9f9f9;
+         border-radius: 0.5rem;
+      }
+      
+      .teacher-features h4 {
+         color: #8e44ad;
+         margin-bottom: 1rem;
+         font-size: 1.6rem;
+      }
+      
+      .teacher-features ul {
+         list-style-type: none;
+         padding-left: 1rem;
+      }
+      
+      .teacher-features li {
+         margin-bottom: 0.8rem;
+         position: relative;
+         padding-left: 2rem;
+      }
+      
+      .teacher-features li:before {
+         content: "\f00c";
+         font-family: "Font Awesome 6 Free";
+         font-weight: 900;
+         position: absolute;
+         left: 0;
+         color: #8e44ad;
+      }
+      .footer{
+        position: absolute;
+        bottom: 0;
+      }
+   </style>
+</head>
+<body>
+
+<header class="header">
+   
+   <section class="flex">
+
+      <a href="/index.html" class="logo"><i class="fas fa-graduation-cap logo-icon"></i>Eduweb</a>
+
+      <form action="search.html" method="post" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Your_Name</h3>
+         <p class="role">teacher</p>
+         <a href="teacher_profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="teacher_login.html" class="option-btn">login</a>
+            <a href="teacher_register.html" class="option-btn">register</a>
+         </div>
+      </div>
+
+   </section>
+
+</header>   
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Your_Name</h3>
+      <p class="role">teacher</p>
+      <a href="teacher_profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="teacher_dashboard.html"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="teacher_courses.html"><i class="fas fa-book"></i><span>My Courses</span></a>
+      <a href="teacher_students.html"><i class="fas fa-users"></i><span>About me</span></a>
+      <!-- <a href="teacher_analytics.html"><i class="fas fa-chart-bar"></i><span>Analytics</span></a> -->
+   </nav>
+
+</div>
+
+<section class="form-container">
+   <div class="login-options">
+      <!-- <div class="login-option" onclick="window.location.href='student_login.html'">
+         <i class="fas fa-user-graduate"></i> Student Login
+      </div> -->
+      <!-- <div class="login-option active" onclick="window.location.href='teacher_login.html'">
+         <i class="fas fa-chalkboard-teacher"></i> Teacher Login
+      </div> -->
+   </div>
+
+   <form action="" method="post" enctype="multipart/form-data">
+      <h3>Teacher Login</h3>
+      <p>Enter your email <span>*</span></p>
+      <input type="email" name="email" placeholder="enter your email" required maxlength="50" class="box">
+      <p>Enter your password <span>*</span></p>
+      <input type="password" name="pass" placeholder="enter your password" required maxlength="20" class="box">
+     <div style="display: flex; gap:5px;">
+         <input type="submit" value="Login now" name="submit" class="btn" style="width:350px">
+      <div class="register-option" onclick="window.location.href='student_login.html' " style="background-color: green; width: 400px; height: 50px;font-size: 17px; color:white; 
+      padding-top: 15px;margin-top:10px; border-radius: 10px;  cursor:pointer;" onmouseover="this.style.backgroundColor='green'"
+   onmouseout="this.style.backgroundColor='hsl(170,75%,41%)'">
+         <i class="fas fa-user-graduate" style="padding-left:30px;" ></i> Student Login
+      </div>
+     </div>
+      <p>Already have an account? <a href="teacher_register.html">Register now</a></p>
+   </form>
+   
+   <!-- <div class="teacher-features">
+      <h4>Teacher Portal Features:</h4>
+      <ul>
+         <li>Create and manage your courses</li>
+         <li>Track student progress and performance</li>
+         <li>Upload course materials and assignments</li>
+         <li>Communicate with your students</li>
+         <li>View detailed analytics and reports</li>
+      </ul>
+   </div> -->
+</section>
+
+<footer class="footer">
+   &copy; copyright @ 2025 by <span>Code_Crax</span> | all rights reserved!
+</footer>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+</body>
+</html>
