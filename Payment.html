@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Body Styling */
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Form Container */
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Form Header */
+        .main_heading {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Subtext */
+        .subtext {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 25px;
+            font-weight: 400;
+        }
+
+        /* Section Headings *
+        h2 {
+            color: #3498db;
+            font-size: 18px;
+            margin: 20px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        h3 {
+            color: #3498db;
+            font-size: 16px;
+            margin: 20px 0 15px;
+        }
+
+        /* Labels */
+        label {
+            font-weight: 500;
+            display: block;
+            margin: 12px 0 6px;
+            color: #34495e;
+            font-size: 14px;
+        }
+
+        /* Required Field Indicator */
+        label:after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        /* Inputs & Select */
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+        }
+
+        /* Input Placeholder */
+        ::placeholder {
+            color: #95a5a6;
+            opacity: 1;
+        }
+
+        /* Input Hover & Focus */
+        input:focus, select:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background-color: #fff;
+        }
+
+        /* Gender Selection Styling */
+        .gender-options {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+        }
+
+        .gender-options label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #34495e;
+            cursor: pointer;
+            margin: 5px 0;
+            font-weight: 400;
+        }
+
+        .gender-options input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        /* Fieldset Styling */
+        fieldset {
+            padding: 15px;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+        }
+
+        legend {
+            color: #34495e;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 0 8px;
+        }
+
+        /* Divider Line */
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ecf0f1;
+            margin: 20px 0;
+        }
+
+        /* Payment Button */
+        .pay-button {
+            width: 100%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: #fff;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Hover Effect */
+        .pay-button:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .pay-button:active {
+            transform: translateY(0);
+        }
+
+        /* Card Type Select Styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237f8c8d'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+
+        /* CVV Input */
+        #CVV {
+            letter-spacing: 3px;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .gender-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form action="" method="get">
+            <h1 class="main_heading">💳 Secure Payment Form</h1>
+            <p class="subtext">Fields marked with * are required</p>
+            
+            <h2>📝 Contact Information</h2>
+
+            <label for="name">Full Name</label>
+            <input type="text" id="name" required name="name" placeholder="Enter your full name">
+
+            <!-- Fixed Gender Selection -->
+            <fieldset>
+                <legend>Gender</legend>
+                <div class="gender-options">
+                    <label for="male">
+                        <input type="radio" name="gender" id="male" value="male" required> Male
+                    </label>
+                    <label for="female">
+                        <input type="radio" name="gender" id="female" value="female" required> Female
+                    </label>
+                    <label for="other">
+                        <input type="radio" name="gender" id="other" value="other" required> Other
+                    </label>
+                </div>
+            </fieldset>
+
+            <label for="address">Address</label>
+            <textarea name="address" id="address" cols="50" rows="4" required placeholder="Enter Your Address"></textarea>
+
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required placeholder="yourname@example.com">
+
+            <label for="pincode">Pincode</label>
+            <input type="number" name="pincode" id="pincode" required placeholder="741109">
+
+            <hr>
+
+            <h3>💰 Payment Information</h3>
+
+            <label for="card_type">Card Type</label>
+            <select name="card_type" id="card_type" required>
+                <option value="">-- Select a Card Type --</option>
+                <option value="visa">Visa</option>
+                <option value="mastercard">MasterCard</option>
+                <option value="rupay">RuPay</option>
+            </select>
+
+            <label for="card_number">Card Number</label>
+            <input type="number" name="card_number" id="card_number" required placeholder="1234 5678 9012 3456">
+
+            <label for="exp_date">Expiration Date</label>
+            <input type="date" name="exp_date" id="exp_date" required>
+
+            <label for="CVV">CVV</label>
+            <input type="password" name="CVV" id="CVV" required placeholder="•••" maxlength="3">
+
+            <button type="submit" class="pay-button">💸 Pay Now</button>
+        </form>
+    </div>
+</body>
+</html>

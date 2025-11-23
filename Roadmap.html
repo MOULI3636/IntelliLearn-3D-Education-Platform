@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Pathway Explorer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+        
+        .options-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .main-option {
+            background-color: #388e3c;
+            color: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 200px;
+        }
+        
+        .main-option:hover {
+            background-color: #2e7d32;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .sub-options {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .sub-options.active {
+            display: block;
+        }
+        
+        .sub-option {
+            background-color: #e8f5e9;
+            padding: 15px 25px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid #388e3c;
+            color: #1b5e20;
+        }
+        
+        .sub-option:hover {
+            background-color: #c8e6c9;
+            transform: translateX(5px);
+        }
+        
+        .pathway {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+            border-top: 5px solid #388e3c;
+        }
+        
+        .pathway.active {
+            display: block;
+        }
+        
+        .pathway h2 {
+            color: #1b5e20;
+            border-bottom: 2px solid #81c784;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        .tree {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .tree ul {
+            position: relative;
+            padding-left: 20px;
+            list-style: none;
+        }
+        
+        .tree li {
+            position: relative;
+            padding: 10px 0 10px 20px;
+        }
+        
+        .tree li::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 15px;
+            height: 100%;
+            border-left: 2px solid #388e3c;
+        }
+        
+        .tree li::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 15px;
+            border-top: 2px solid #388e3c;
+        }
+        
+        .tree li:last-child::before {
+            height: 20px;
+        }
+        
+        .tree .node {
+            background-color: #f1f8e9;
+            padding: 8px 15px;
+            border-radius: 4px;
+            display: inline-block;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .back-btn {
+            background-color: #81c784;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-btn:hover {
+            background-color: #66bb6a;
+        }
+        
+        .sub-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .engineering-branches {
+            display: none;
+        }
+        
+        .engineering-branches.active {
+            display: grid;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Career Pathway Explorer</h1>
+        
+        <div class="options-container">
+            <div class="main-option" id="engineering-btn">Engineering</div>
+            <div class="main-option" id="medical-btn">Medical</div>
+            <div class="main-option" id="commerce-btn">Commerce</div>
+            <div class="main-option" id="arts-btn">Arts & Humanities</div>
+            <div class="main-option" id="placement-btn">IT Placements</div>
+            <div class="main-option" id="higher-studies-btn">Higher Studies</div>
+        </div>
+        
+        <!-- Engineering Sub Options -->
+        <div class="sub-options" id="engineering-options">
+            <div class="sub-option" id="show-engineering-branches">Engineering Branches</div>
+            <div class="sub-option" id="engineering-placements-btn">Placements</div>
+            <div class="sub-option" id="engineering-higher-studies-btn">Higher Studies</div>
+            <button class="back-btn" id="back-engineering">Back</button>
+            
+            <div class="engineering-branches" id="engineering-branches">
+                <div class="sub-option" id="civil-engineering-btn">Civil Engineering</div>
+                <div class="sub-option" id="mechanical-engineering-btn">Mechanical Engineering</div>
+                <div class="sub-option" id="electrical-engineering-btn">Electrical Engineering</div>
+                <div class="sub-option" id="electronics-engineering-btn">Electronics Engineering</div>
+                <div class="sub-option" id="computer-engineering-btn">Computer Engineering</div>
+                <div class="sub-option" id="chemical-engineering-btn">Chemical Engineering</div>
+                <div class="sub-option" id="aerospace-engineering-btn">Aerospace Engineering</div>
+                <div class="sub-option" id="biomedical-engineering-btn">Biomedical Engineering</div>
+            </div>
+        </div>
+        
+        <!-- Medical Sub Options -->
+        <div class="sub-options" id="medical-options">
+            <div class="sub-option" id="mbbs-pathway-btn">MBBS Pathway</div>
+            <div class="sub-option" id="bds-pathway-btn">BDS (Dentistry)</div>
+            <div class="sub-option" id="pharmacy-pathway-btn">Pharmacy</div>
+            <div class="sub-option" id="nursing-pathway-btn">Nursing</div>
+            <div class="sub-option" id="ayush-pathway-btn">AYUSH (Alternative Medicine)</div>
+            <div class="sub-option" id="medical-research-btn">Medical Research</div>
+            <button class="back-btn" id="back-medical">Back</button>
+        </div>
+        
+        <!-- Commerce Sub Options -->
+        <div class="sub-options" id="commerce-options">
+            <div class="sub-option" id="ca-pathway-btn">Chartered Accountancy (CA)</div>
+            <div class="sub-option" id="cfa-pathway-btn">CFA (Finance)</div>
+            <div class="sub-option" id="mba-pathway-btn">MBA Pathway</div>
+            <div class="sub-option" id="company-secretary-btn">Company Secretary (CS)</div>
+            <div class="sub-option" id="banking-pathway-btn">Banking Careers</div>
+            <div class="sub-option" id="investment-banking-btn">Investment Banking</div>
+            <button class="back-btn" id="back-commerce">Back</button>
+        </div>
+        
+        <!-- Arts & Humanities Sub Options -->
+        <div class="sub-options" id="arts-options">
+            <div class="sub-option" id="law-pathway-btn">Law Careers</div>
+            <div class="sub-option" id="journalism-pathway-btn">Journalism & Media</div>
+            <div class="sub-option" id="psychology-pathway-btn">Psychology</div>
+            <div class="sub-option" id="teaching-pathway-btn">Teaching & Education</div>
+            <div class="sub-option" id="design-pathway-btn">Design Careers</div>
+            <div class="sub-option" id="social-work-btn">Social Work</div>
+            <button class="back-btn" id="back-arts">Back</button>
+        </div>
+        
+        <!-- IT Placement Sub Options -->
+        <div class="sub-options" id="placement-options">
+            <div class="sub-option" id="full-stack-btn">Full Stack Development</div>
+            <div class="sub-option" id="ai-ml-btn">AI/ML Engineer</div>
+            <div class="sub-option" id="cyber-security-btn">Cyber Security</div>
+            <div class="sub-option" id="data-science-btn">Data Science</div>
+            <div class="sub-option" id="cloud-computing-btn">Cloud Computing</div>
+            <div class="sub-option" id="devops-btn">DevOps Engineering</div>
+            <button class="back-btn" id="back-placement">Back</button>
+        </div>
+        
+        <!-- Higher Studies Sub Options -->
+        <div class="sub-options" id="higher-studies-options">
+            <div class="sub-option" id="mtech-btn">MTech</div>
+            <div class="sub-option" id="phd-btn">PhD</div>
+            <div class="sub-option" id="ms-abroad-btn">MS Abroad</div>
+            <div class="sub-option" id="research-fellowship-btn">Research Fellowships</div>
+            <button class="back-btn" id="back-higher-studies">Back</button>
+        </div>
+        
+        <!-- Engineering Pathways -->
+        <div class="pathway" id="civil-engineering-pathway">
+            <h2>Civil Engineering Career Pathway</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Education (4 years)</div>
+                        <ul>
+                            <li><div class="node">Bachelor's in Civil Engineering</div></li>
+                            <li><div class="node">Core Subjects: Structural, Geotechnical, Transportation</div></li>
+                            <li><div class="node">Internships in Construction Firms</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Entry Level (0-2 years)</div>
+                        <ul>
+                            <li><div class="node">Site Engineer</div></li>
+                            <li><div class="node">Design Engineer</div></li>
+                            <li><div class="node">Get Professional Certifications</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Mid Level (3-8 years)</div>
+                        <ul>
+                            <li><div class="node">Project Engineer</div></li>
+                            <li><div class="node">Structural Designer</div></li>
+                            <li><div class="node">Specialize in BIM/Green Building</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Senior Level (8+ years)</div>
+                        <ul>
+                            <li><div class="node">Project Manager</div></li>
+                            <li><div class="node">Consultant</div></li>
+                            <li><div class="node">Entrepreneurship Opportunities</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-civil-engineering">Back to Options</button>
+        </div>
+        
+        <div class="pathway" id="computer-engineering-pathway">
+            <h2>Computer Engineering Career Pathway</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Education (4 years)</div>
+                        <ul>
+                            <li><div class="node">Bachelor's in Computer Engineering</div></li>
+                            <li><div class="node">Core Subjects: Algorithms, OS, Networks</div></li>
+                            <li><div class="node">Programming Skills Development</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Entry Level (0-2 years)</div>
+                        <ul>
+                            <li><div class="node">Software Developer</div></li>
+                            <li><div class="node">Systems Engineer</div></li>
+                            <li><div class="node">Get Certified in Specializations</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Mid Level (3-8 years)</div>
+                        <ul>
+                            <li><div class="node">Senior Developer</div></li>
+                            <li><div class="node">Architect</div></li>
+                            <li><div class="node">Team Lead</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Senior Level (8+ years)</div>
+                        <ul>
+                            <li><div class="node">CTO/Technical Director</div></li>
+                            <li><div class="node">Principal Engineer</div></li>
+                            <li><div class="node">Startup Founder</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-computer-engineering">Back to Options</button>
+        </div>
+        
+        <!-- Medical Pathways -->
+        <div class="pathway" id="mbbs-pathway">
+            <h2>MBBS Career Pathway</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Education (5.5 years)</div>
+                        <ul>
+                            <li><div class="node">MBBS Degree</div></li>
+                            <li><div class="node">Internship</div></li>
+                            <li><div class="node">NEET Preparation</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Post Graduation (3 years)</div>
+                        <ul>
+                            <li><div class="node">PG Entrance (NEET-PG)</div></li>
+                            <li><div class="node">MD/MS Specialization</div></li>
+                            <li><div class="node">Residency Program</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Super Specialization (3 years)</div>
+                        <ul>
+                            <li><div class="node">DM/MCh Programs</div></li>
+                            <li><div class="node">Fellowships</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Career Options</div>
+                        <ul>
+                            <li><div class="node">Hospital Practice</div></li>
+                            <li><div class="node">Teaching & Research</div></li>
+                            <li><div class="node">Private Practice</div></li>
+                            <li><div class="node">Healthcare Administration</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-mbbs">Back to Options</button>
+        </div>
+        
+        <!-- Commerce Pathways -->
+        <div class="pathway" id="ca-pathway">
+            <h2>Chartered Accountancy (CA) Pathway</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Foundation Course (8 months)</div>
+                        <ul>
+                            <li><div class="node">Register after 12th grade</div></li>
+                            <li><div class="node">Clear Foundation Exam</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Intermediate Course (8 months)</div>
+                        <ul>
+                            <li><div class="node">4 Papers in Each Group</div></li>
+                            <li><div class="node">IT and Soft Skills Training</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Articleship (3 years)</div>
+                        <ul>
+                            <li><div class="node">Practical Training</div></li>
+                            <li><div class="node">Final Exam Preparation</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Final Course</div>
+                        <ul>
+                            <li><div class="node">Advanced Technical Knowledge</div></li>
+                            <li><div class="node">Clear Final Exams</div></li>
+                            <li><div class="node">Become ICAI Member</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Career Options</div>
+                        <ul>
+                            <li><div class="node">Audit & Taxation</div></li>
+                            <li><div class="node">Financial Consulting</div></li>
+                            <li><div class="node">Corporate Finance</div></li>
+                            <li><div class="node">Entrepreneurship</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-ca">Back to Options</button>
+        </div>
+        
+        <!-- Arts Pathways -->
+        <div class="pathway" id="law-pathway">
+            <h2>Law Career Pathway</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Education (5 years)</div>
+                        <ul>
+                            <li><div class="node">Integrated BA LLB/BBA LLB</div></li>
+                            <li><div class="node">CLAT/LSAT Preparation</div></li>
+                            <li><div class="node">Internships at Law Firms</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Specialization</div>
+                        <ul>
+                            <li><div class="node">Corporate Law</div></li>
+                            <li><div class="node">Criminal Law</div></li>
+                            <li><div class="node">Intellectual Property</div></li>
+                            <li><div class="node">Constitutional Law</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Bar Council Registration</div>
+                        <ul>
+                            <li><div class="node">All India Bar Exam</div></li>
+                            <li><div class="node">Practice Certificate</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Career Options</div>
+                        <ul>
+                            <li><div class="node">Litigation</div></li>
+                            <li><div class="node">Corporate Counsel</div></li>
+                            <li><div class="node">Judicial Services</div></li>
+                            <li><div class="node">Legal Academia</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-law">Back to Options</button>
+        </div>
+        
+        <!-- IT Pathways -->
+        <div class="pathway" id="full-stack-pathway">
+            <h2>Full Stack Development Roadmap</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Fundamentals (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">HTML, CSS, JavaScript</div></li>
+                            <li><div class="node">Version Control (Git)</div></li>
+                            <li><div class="node">Basic Algorithms & Data Structures</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Frontend Development (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">React/Angular/Vue</div></li>
+                            <li><div class="node">State Management</div></li>
+                            <li><div class="node">Responsive Design</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Backend Development (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">Node.js/Express or Python/Django</div></li>
+                            <li><div class="node">RESTful APIs</div></li>
+                            <li><div class="node">Database (SQL & NoSQL)</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Advanced Topics (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">Authentication & Authorization</div></li>
+                            <li><div class="node">Testing (Jest, Mocha)</div></li>
+                            <li><div class="node">CI/CD</div></li>
+                            <li><div class="node">Cloud Deployment</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-full-stack">Back to Options</button>
+        </div>
+        
+        <div class="pathway" id="ai-ml-pathway">
+            <h2>AI/ML Engineer Roadmap</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Prerequisites (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">Python Programming</div></li>
+                            <li><div class="node">Linear Algebra & Calculus</div></li>
+                            <li><div class="node">Probability & Statistics</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Machine Learning Fundamentals (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">Supervised & Unsupervised Learning</div></li>
+                            <li><div class="node">Scikit-learn</div></li>
+                            <li><div class="node">Model Evaluation</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Deep Learning (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">Neural Networks</div></li>
+                            <li><div class="node">TensorFlow/PyTorch</div></li>
+                            <li><div class="node">CNN, RNN, Transformers</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Specialization & Deployment (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">NLP or Computer Vision</div></li>
+                            <li><div class="node">MLOps</div></li>
+                            <li><div class="node">Cloud AI Services</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-ai-ml">Back to Options</button>
+        </div>
+        
+        <!-- Higher Studies Pathways -->
+        <div class="pathway" id="mtech-pathway">
+            <h2>MTech Pathway</h2>
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="node">Preparation (6-12 months)</div>
+                        <ul>
+                            <li><div class="node">GATE Exam Preparation</div></li>
+                            <li><div class="node">Research Potential Universities</div></li>
+                            <li><div class="node">Statement of Purpose</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Application Process (3-6 months)</div>
+                        <ul>
+                            <li><div class="node">Shortlist Colleges</div></li>
+                            <li><div class="node">Apply for GATE-based Admission</div></li>
+                            <li><div class="node">Prepare for Interviews</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">MTech Program (2 years)</div>
+                        <ul>
+                            <li><div class="node">Core Courses</div></li>
+                            <li><div class="node">Specialization Electives</div></li>
+                            <li><div class="node">Research Project/Thesis</div></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="node">Post Graduation</div>
+                        <ul>
+                            <li><div class="node">Research Positions</div></li>
+                            <li><div class="node">Industry Roles</div></li>
+                            <li><div class="node">PhD Preparation (optional)</div></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <button class="back-btn" id="back-mtech">Back to Options</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Main buttons
+            const engineeringBtn = document.getElementById('engineering-btn');
+            const medicalBtn = document.getElementById('medical-btn');
+            const commerceBtn = document.getElementById('commerce-btn');
+            const artsBtn = document.getElementById('arts-btn');
+            const placementBtn = document.getElementById('placement-btn');
+            const higherStudiesBtn = document.getElementById('higher-studies-btn');
+            
+            // Sub options containers
+            const engineeringOptions = document.getElementById('engineering-options');
+            const medicalOptions = document.getElementById('medical-options');
+            const commerceOptions = document.getElementById('commerce-options');
+            const artsOptions = document.getElementById('arts-options');
+            const placementOptions = document.getElementById('placement-options');
+            const higherStudiesOptions = document.getElementById('higher-studies-options');
+            
+            // Engineering branches container
+            const engineeringBranches = document.getElementById('engineering-branches');
+            const showEngineeringBranches = document.getElementById('show-engineering-branches');
+            
+            // Pathway containers
+            const civilEngineeringPathway = document.getElementById('civil-engineering-pathway');
+            const computerEngineeringPathway = document.getElementById('computer-engineering-pathway');
+            const mbbsPathway = document.getElementById('mbbs-pathway');
+            const caPathway = document.getElementById('ca-pathway');
+            const lawPathway = document.getElementById('law-pathway');
+            const fullStackPathway = document.getElementById('full-stack-pathway');
+            const aiMlPathway = document.getElementById('ai-ml-pathway');
+            const mtechPathway = document.getElementById('mtech-pathway');
+            
+            // Back buttons
+            const backEngineering = document.getElementById('back-engineering');
+            const backMedical = document.getElementById('back-medical');
+            const backCommerce = document.getElementById('back-commerce');
+            const backArts = document.getElementById('back-arts');
+            const backPlacement = document.getElementById('back-placement');
+            const backHigherStudies = document.getElementById('back-higher-studies');
+            const backCivilEngineering = document.getElementById('back-civil-engineering');
+            const backComputerEngineering = document.getElementById('back-computer-engineering');
+            const backMbbs = document.getElementById('back-mbbs');
+            const backCa = document.getElementById('back-ca');
+            const backLaw = document.getElementById('back-law');
+            const backFullStack = document.getElementById('back-full-stack');
+            const backAiMl = document.getElementById('back-ai-ml');
+            const backMtech = document.getElementById('back-mtech');
+            
+            // Event listeners for main buttons
+            engineeringBtn.addEventListener('click', function() {
+                engineeringOptions.classList.add('active');
+                hideOtherOptions(engineeringOptions);
+                hideAllPathways();
+            });
+            
+            medicalBtn.addEventListener('click', function() {
+                medicalOptions.classList.add('active');
+                hideOtherOptions(medicalOptions);
+                hideAllPathways();
+            });
+            
+            commerceBtn.addEventListener('click', function() {
+                commerceOptions.classList.add('active');
+                hideOtherOptions(commerceOptions);
+                hideAllPathways();
+            });
+            
+            artsBtn.addEventListener('click', function() {
+                artsOptions.classList.add('active');
+                hideOtherOptions(artsOptions);
+                hideAllPathways();
+            });
+            
+            placementBtn.addEventListener('click', function() {
+                placementOptions.classList.add('active');
+                hideOtherOptions(placementOptions);
+                hideAllPathways();
+            });
+            
+            higherStudiesBtn.addEventListener('click', function() {
+                higherStudiesOptions.classList.add('active');
+                hideOtherOptions(higherStudiesOptions);
+                hideAllPathways();
+            });
+            
+            // Engineering branches toggle
+            showEngineeringBranches.addEventListener('click', function() {
+                engineeringBranches.classList.toggle('active');
+            });
+            
+            // Event listeners for engineering sub options
+            document.getElementById('civil-engineering-btn').addEventListener('click', function() {
+                civilEngineeringPathway.classList.add('active');
+                engineeringOptions.classList.remove('active');
+            });
+            
+            document.getElementById('computer-engineering-btn').addEventListener('click', function() {
+                computerEngineeringPathway.classList.add('active');
+                engineeringOptions.classList.remove('active');
+            });
+            
+            // Event listeners for medical sub options
+            document.getElementById('mbbs-pathway-btn').addEventListener('click', function() {
+                mbbsPathway.classList.add('active');
+                medicalOptions.classList.remove('active');
+            });
+            
+            // Event listeners for commerce sub options
+            document.getElementById('ca-pathway-btn').addEventListener('click', function() {
+                caPathway.classList.add('active');
+                commerceOptions.classList.remove('active');
+            });
+            
+            // Event listeners for arts sub options
+            document.getElementById('law-pathway-btn').addEventListener('click', function() {
+                lawPathway.classList.add('active');
+                artsOptions.classList.remove('active');
+            });
+            
+            // Event listeners for placement sub options
+            document.getElementById('full-stack-btn').addEventListener('click', function() {
+                fullStackPathway.classList.add('active');
+                placementOptions.classList.remove('active');
+            });
+            
+            document.getElementById('ai-ml-btn').addEventListener('click', function() {
+                aiMlPathway.classList.add('active');
+                placementOptions.classList.remove('active');
+            });
+            
+            // Event listeners for higher studies sub options
+            document.getElementById('mtech-btn').addEventListener('click', function() {
+                mtechPathway.classList.add('active');
+                higherStudiesOptions.classList.remove('active');
+            });
+            
+            // Event listeners for back buttons
+            backEngineering.addEventListener('click', function() {
+                engineeringOptions.classList.remove('active');
+                engineeringBranches.classList.remove('active');
+            });
+            
+            backMedical.addEventListener('click', function() {
+                medicalOptions.classList.remove('active');
+            });
+            
+            backCommerce.addEventListener('click', function() {
+                commerceOptions.classList.remove('active');
+            });
+            
+            backArts.addEventListener('click', function() {
+                artsOptions.classList.remove('active');
+            });
+            
+            backPlacement.addEventListener('click', function() {
+                placementOptions.classList.remove('active');
+            });
+            
+            backHigherStudies.addEventListener('click', function() {
+                higherStudiesOptions.classList.remove('active');
+            });
+            
+            backCivilEngineering.addEventListener('click', function() {
+                civilEngineeringPathway.classList.remove('active');
+                engineeringOptions.classList.add('active');
+            });
+            
+            backComputerEngineering.addEventListener('click', function() {
+                computerEngineeringPathway.classList.remove('active');
+                engineeringOptions.classList.add('active');
+            });
+            
+            backMbbs.addEventListener('click', function() {
+                mbbsPathway.classList.remove('active');
+                medicalOptions.classList.add('active');
+            });
+            
+            backCa.addEventListener('click', function() {
+                caPathway.classList.remove('active');
+                commerceOptions.classList.add('active');
+            });
+            
+            backLaw.addEventListener('click', function() {
+                lawPathway.classList.remove('active');
+                artsOptions.classList.add('active');
+            });
+            
+            backFullStack.addEventListener('click', function() {
+                fullStackPathway.classList.remove('active');
+                placementOptions.classList.add('active');
+            });
+            
+            backAiMl.addEventListener('click', function() {
+                aiMlPathway.classList.remove('active');
+                placementOptions.classList.add('active');
+            });
+            
+            backMtech.addEventListener('click', function() {
+                mtechPathway.classList.remove('active');
+                higherStudiesOptions.classList.add('active');
+            });
+            
+            // Function to hide all other options when one is shown
+            function hideOtherOptions(currentOption) {
+                const allOptions = [
+                    engineeringOptions,
+                    medicalOptions,
+                    commerceOptions,
+                    artsOptions,
+                    placementOptions,
+                    higherStudiesOptions
+                ];
+                
+                allOptions.forEach(option => {
+                    if (option !== currentOption) {
+                        option.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Function to hide all pathways
+            function hideAllPathways() {
+                const pathways = document.querySelectorAll('.pathway');
+                pathways.forEach(pathway => {
+                    pathway.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

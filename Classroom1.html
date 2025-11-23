@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduConnect Pro | Professional Education Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Global Styles --- */
+        :root {
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --light-green: #d5f4e6;
+            --accent-green: #1abc9c;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #343a40;
+            --text-color: #2c3e50;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-green);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border: 2px solid var(--primary-green);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--light-green);
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .container {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* --- Page Containers --- */
+        .page {
+            display: none;
+            width: 100vw;
+            min-height: 100vh;
+        }
+        
+        #main-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+            color: var(--white);
+            text-align: center;
+        }
+        
+        #main-page h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        #main-page p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+        
+        #main-page .nav-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        #main-page .nav-buttons button {
+            min-width: 200px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+
+        /* --- Header --- */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* --- Welcome Pop-up --- */
+        #welcome-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup-content {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .popup-content h2 {
+            margin-top: 0;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+
+        .popup-content p {
+            font-size: 18px;
+            margin-bottom: 24px;
+            color: var(--text-color);
+        }
+
+        #welcome-popup.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #welcome-popup.hidden .popup-content {
+            transform: scale(0.9);
+        }
+
+        /* --- Upload Course Page --- */
+        #upload-page {
+            background-color: var(--light-gray);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--primary-green);
+        }
+
+        #upload-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius);
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--primary-green);
+            outline: none;
+        }
+        
+        .form-group input[type="file"] {
+            padding: 10px;
+            background: var(--light-gray);
+        }
+        
+        .back-to-main {
+            margin-top: 20px;
+        }
+
+        /* --- Classroom Page --- */
+        #classroom-page {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--light-gray);
+        }
+        
+        .classroom-header {
+            width: 100%;
+            background: var(--white);
+            box-shadow: var(--shadow);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .classroom-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .classroom-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .classroom-code {
+            background: var(--light-green);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--dark-green);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .tool {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--medium-gray);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .tool.active {
+            border-color: var(--primary-green);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+        
+        #color-black { background-color: #000000; color: white; }
+        #color-red   { background-color: #e74c3c; color: white; }
+        #color-blue  { background-color: #3498db; color: white; }
+        #color-green { background-color: #2ecc71; color: white; }
+        #color-yellow { background-color: #f1c40f; }
+        #color-purple { background-color: #9b59b6; color: white; }
+        
+        #eraser {
+            background-color: var(--white);
+            font-size: 18px;
+            width: auto;
+            height: auto;
+            border-radius: var(--radius);
+            padding: 8px 15px;
+        }
+
+        #text-tool {
+            font-size: 16px;
+            width: auto;
+            height: auto;
+            border-radius: var(--radius);
+            padding: 8px 15px;
+            background: var(--light-green);
+            color: var(--dark-green);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Classroom Layout */
+        .classroom-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--white);
+            border-right: 1px solid var(--medium-gray);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-list {
+            list-style: none;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+
+        .user-item:hover {
+            background: var(--light-green);
+        }
+
+        .user-avatar-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--dark-gray);
+            margin-left: auto;
+        }
+
+        .chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius);
+            padding: 10px;
+            margin-bottom: 10px;
+            background: var(--light-gray);
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: var(--radius);
+            background: var(--white);
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .whiteboard-container {
+            flex: 1;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #whiteboard {
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            cursor: crosshair;
+        }
+
+        .whiteboard-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .control-input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+        }
+
+        /* --- Classroom Selection Page --- */
+        #classroom-selection-page {
+            background-color: var(--light-gray);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .classroom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .classroom-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+
+        .classroom-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .classroom-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .classroom-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .classroom-card-code {
+            background: var(--light-green);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--dark-green);
+        }
+
+        .classroom-card-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .classroom-card-info div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .classroom-card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* --- Join Classroom Modal --- */
+        #join-classroom-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark-gray);
+            cursor: pointer;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .classroom-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 300px;
+            }
+            
+            #upload-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .classroom-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .toolbar {
+                justify-content: center;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="welcome-popup">
+        <div class="popup-content">
+            <h2>Welcome to EduConnect Pro!</h2>
+            <p>Your professional platform for teaching and learning. Connect, collaborate, and create amazing educational experiences.</p>
+            <button id="close-popup-btn" class="btn-primary">Get Started</button>
+        </div>
+    </div>
+
+    <div class="app-header">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduConnect Pro</span>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">JS</div>
+            <span>John Smith</span>
+            <button class="btn-secondary" id="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <div id="main-page" class="page" style="display: flex;">
+        <div class="container">
+            <h1>Transform Education Together</h1>
+            <p>EduConnect Pro brings teachers and students together in an interactive, collaborative learning environment with advanced tools and features.</p>
+            <div class="nav-buttons">
+                <button id="go-to-upload-btn" class="btn-secondary">Upload a Course</button>
+                <button id="go-to-classroom-btn" class="btn-secondary">Join Classroom</button>
+                <button id="go-to-classroom-selection" class="btn-secondary">My Classrooms</button>
+                <button id="go-to-create-classroom" class="btn-primary">Create Classroom</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="upload-page" class="page">
+        <div class="container">
+            <h2 class="page-title">Upload New Course</h2>
+            <p>Fill out the details below to add your new course to the platform.</p>
+            
+            <form id="upload-form" onsubmit="return false;">
+                <div class="form-group full-width">
+                    <label for="course-title">Course Title</label>
+                    <input type="text" id="course-title" placeholder="e.g., Introduction to Web Design" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="course-category">Course Category</label>
+                    <select id="course-category" required>
+                        <option value="">Select Category</option>
+                        <option value="technology">Technology</option>
+                        <option value="business">Business</option>
+                        <option value="science">Science</option>
+                        <option value="arts">Arts & Humanities</option>
+                        <option value="mathematics">Mathematics</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="course-level">Course Level</label>
+                    <select id="course-level" required>
+                        <option value="">Select Level</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="course-description">Course Description</label>
+                    <textarea id="course-description" rows="4" placeholder="Describe your course..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="course-video">Upload Video Lecture</label>
+                    <input type="file" id="course-video" accept="video/*">
+                </div>
+                
+                <div class="form-group">
+                    <label for="course-notes">Upload Notes (PDF, DOCX)</label>
+                    <input type="file" id="course-notes" accept=".pdf,.docx,.txt">
+                </div>
+                
+                <div class="form-group">
+                    <label for="course-assignment">Upload Assignment</label>
+                    <input type="file" id="course-assignment" accept=".pdf,.zip">
+                </div>
+                
+                <div class="form-group">
+                    <label for="course-certificate">Upload Certificate Template</label>
+                    <input type="file" id="course-certificate" accept="image/*,.pdf">
+                </div>
+                
+                <div class="form-group">
+                    <label for="course-amount">Course Amount ($)</label>
+                    <input type="number" id="course-amount" placeholder="e.g., 29.99" min="0" step="0.01" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="course-tags">Course Tags (comma separated)</label>
+                    <input type="text" id="course-tags" placeholder="e.g., web design, html, css">
+                </div>
+                
+                <div class="full-width">
+                    <button id="upload-submit-btn" class="btn-primary" type="submit">Submit Course</button>
+                </div>
+            </form>
+            <button class="back-to-main btn-secondary" data-target="main-page">Back to Main Page</button>
+        </div>
+    </div>
+
+    <div id="classroom-selection-page" class="page">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">My Classrooms</h2>
+                <button id="create-classroom-btn" class="btn-primary">Create New Classroom</button>
+            </div>
+            
+            <div class="classroom-grid">
+                <!-- Classroom cards will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <div id="classroom-page" class="page">
+        <div class="classroom-header">
+            <div class="classroom-info">
+                <div class="classroom-title">Advanced Web Development</div>
+                <div class="classroom-code">ID: WEB2023</div>
+            </div>
+
+            <div class="toolbar">
+                <span>Tools:</span>
+                <button class="tool active" id="color-black" data-color="#000000"><i class="fas fa-pen"></i></button>
+                <button class="tool" id="color-red" data-color="#e74c3c"><i class="fas fa-pen"></i></button>
+                <button class="tool" id="color-blue" data-color="#3498db"><i class="fas fa-pen"></i></button>
+                <button class="tool" id="color-green" data-color="#2ecc71"><i class="fas fa-pen"></i></button>
+                <button class="tool" id="color-yellow" data-color="#f1c40f"><i class="fas fa-pen"></i></button>
+                <button class="tool" id="color-purple" data-color="#9b59b6"><i class="fas fa-pen"></i></button>
+                <button id="eraser" class="tool"><i class="fas fa-eraser"></i> Eraser</button>
+                <button id="text-tool" class="tool"><i class="fas fa-font"></i> Text</button>
+                <button id="shape-tool" class="tool"><i class="fas fa-square"></i> Shapes</button>
+                <button id="clear-board" class="tool btn-danger"><i class="fas fa-trash"></i> Clear</button>
+            </div>
+            
+            <div class="header-buttons">
+                <button id="lab-btn" class="btn-primary"><i class="fas fa-flask"></i> Lab</button>
+                <button id="share-btn" class="btn-primary"><i class="fas fa-share-alt"></i> Share</button>
+                <button id="settings-btn" class="btn-secondary"><i class="fas fa-cog"></i></button>
+            </div>
+        </div>
+        
+        <div class="classroom-layout">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-users"></i>
+                        <span>Participants (24)</span>
+                    </div>
+                    <ul class="user-list" id="participants-list">
+                        <!-- Participants will be dynamically added -->
+                    </ul>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat</span>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Chat messages will be dynamically added -->
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="Type a message...">
+                        <button id="send-message" class="btn-primary"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-paperclip"></i>
+                        <span>Resources</span>
+                    </div>
+                    <div class="resource-list">
+                        <div class="resource-item">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Lecture Notes.pdf</span>
+                            <button class="btn-secondary"><i class="fas fa-download"></i></button>
+                        </div>
+                        <div class="resource-item">
+                            <i class="fas fa-video"></i>
+                            <span>Introduction Video.mp4</span>
+                            <button class="btn-secondary"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="whiteboard-container">
+                    <canvas id="whiteboard"></canvas>
+                    <div class="whiteboard-controls">
+                        <div class="control-group">
+                            <span class="control-label">Size:</span>
+                            <input type="range" id="brush-size" min="1" max="50" value="5" class="control-input">
+                        </div>
+                        <div class="control-group">
+                            <span class="control-label">Opacity:</span>
+                            <input type="range" id="brush-opacity" min="0.1" max="1" step="0.1" value="1" class="control-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Classroom Modal -->
+    <div id="join-classroom-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Join a Classroom</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="classroom-code">Classroom Code</label>
+                <input type="text" id="classroom-code" placeholder="Enter classroom code">
+            </div>
+            <div class="form-group">
+                <label for="join-email">Your Email</label>
+                <input type="email" id="join-email" placeholder="Enter your email">
+            </div>
+            <button id="join-classroom-btn" class="btn-primary full-width">Join Classroom</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Global Page Navigation ---
+        const allPages = document.querySelectorAll('.page');
+
+        function showPage(pageId) {
+            allPages.forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.style.display = 'block';
+                
+                // Special handling for classroom page
+                if (pageId === 'classroom-page') {
+                    targetPage.style.display = 'flex';
+                    // Resize canvas when page is shown
+                    const canvas = document.getElementById('whiteboard');
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                }
+                
+                // Special handling for main page
+                if (pageId === 'main-page') {
+                    targetPage.style.display = 'flex';
+                }
+            }
+        }
+
+        // Navigation event listeners
+        document.getElementById('go-to-upload-btn').addEventListener('click', () => showPage('upload-page'));
+        document.getElementById('go-to-classroom-btn').addEventListener('click', () => {
+            document.getElementById('join-classroom-modal').style.display = 'flex';
+        });
+        document.getElementById('go-to-classroom-selection').addEventListener('click', () => {
+            showPage('classroom-selection-page');
+            populateClassroomGrid();
+        });
+        document.getElementById('go-to-create-classroom').addEventListener('click', () => {
+            createNewClassroom();
+        });
+        document.getElementById('create-classroom-btn').addEventListener('click', () => {
+            createNewClassroom();
+        });
+
+        // Back buttons
+        document.querySelectorAll('.back-to-main').forEach(btn => {
+            btn.addEventListener('click', (e) => showPage('main-page'));
+        });
+
+        // Modal close
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('join-classroom-modal').style.display = 'none';
+        });
+
+        // Join classroom
+        document.getElementById('join-classroom-btn').addEventListener('click', () => {
+            const code = document.getElementById('classroom-code').value;
+            const email = document.getElementById('join-email').value;
+            
+            if (code && email) {
+                // In a real app, this would make an API call to join the classroom
+                alert(`Request to join classroom ${code} with email ${email} has been sent. Waiting for teacher approval.`);
+                document.getElementById('join-classroom-modal').style.display = 'none';
+                // Clear inputs
+                document.getElementById('classroom-code').value = '';
+                document.getElementById('join-email').value = '';
+            } else {
+                alert('Please enter both classroom code and your email.');
+            }
+        });
+
+        // --- Welcome Pop-up Logic ---
+        const popup = document.getElementById('welcome-popup');
+        const closePopupBtn = document.getElementById('close-popup-btn');
+        
+        // Show popup on load
+        window.addEventListener('load', () => {
+            popup.style.display = 'flex';
+        });
+        
+        closePopupBtn.addEventListener('click', () => {
+            popup.classList.add('hidden');
+            // Remove from DOM after animation
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300);
+        });
+
+        // --- Upload Form Logic ---
+        document.getElementById('upload-submit-btn').addEventListener('click', () => {
+            const title = document.getElementById('course-title').value;
+            if (title) {
+                alert(`SUCCESS:\nCourse "${title}" has been submitted for review.\n\nYou will be notified once it's approved.`);
+                // Clear form
+                document.getElementById('upload-form').reset();
+                showPage('main-page');
+            } else {
+                alert('Please fill out the course title.');
+            }
+        });
+
+        // --- Classroom (Whiteboard) Logic ---
+        const canvas = document.getElementById('whiteboard');
+        const ctx = canvas.getContext('2d');
+        const toolbar = document.querySelector('.toolbar');
+        
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentColor = '#000000';
+        let currentTool = 'pen';
+        let brushSize = 5;
+        let brushOpacity = 1;
+
+        // Set initial canvas size
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = brushSize;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = brushOpacity;
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        });
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseout', () => isDrawing = false);
+
+        // Tool selection
+        toolbar.addEventListener('click', (e) => {
+            // Remove active class from all tools
+            toolbar.querySelectorAll('.tool').forEach(tool => tool.classList.remove('active'));
+
+            // Add active class to clicked tool
+            if (e.target.classList.contains('tool')) {
+                e.target.classList.add('active');
+            } else if (e.target.parentElement.classList.contains('tool')) {
+                e.target.parentElement.classList.add('active');
+            }
+
+            if (e.target.id === 'eraser' || e.target.parentElement.id === 'eraser') {
+                currentTool = 'eraser';
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = brushSize * 2; // Make eraser bigger
+            } else if (e.target.dataset.color || e.target.parentElement.dataset.color) {
+                currentTool = 'pen';
+                const colorElement = e.target.dataset.color ? e.target : e.target.parentElement;
+                currentColor = colorElement.dataset.color;
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = brushSize;
+            } else if (e.target.id === 'text-tool' || e.target.parentElement.id === 'text-tool') {
+                const text = prompt("Enter text to add to the whiteboard:");
+                if (text) {
+                    const x = canvas.width / 2;
+                    const y = canvas.height / 2;
+                    ctx.font = `${brushSize * 4}px Arial`;
+                    ctx.fillStyle = currentColor;
+                    ctx.fillText(text, x, y);
+                }
+                // Re-select the previous tool
+                document.querySelector(`[data-color="${currentColor}"]`).classList.add('active');
+            } else if (e.target.id === 'clear-board' || e.target.parentElement.id === 'clear-board') {
+                if (confirm("Are you sure you want to clear the whiteboard?")) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                // Re-select the previous tool
+                document.querySelector(`[data-color="${currentColor}"]`).classList.add('active');
+            }
+        });
+
+        // Brush size control
+        document.getElementById('brush-size').addEventListener('input', (e) => {
+            brushSize = e.target.value;
+            ctx.lineWidth = brushSize;
+            if (currentTool === 'eraser') {
+                ctx.lineWidth = brushSize * 2;
+            }
+        });
+
+        // Brush opacity control
+        document.getElementById('brush-opacity').addEventListener('input', (e) => {
+            brushOpacity = e.target.value;
+            ctx.globalAlpha = brushOpacity;
+        });
+
+        // Classroom Header Buttons
+        document.getElementById('lab-btn').addEventListener('click', () => {
+            alert('Lab Experiments Clicked!\n\nThis would open a new window or a modal with links to different lab simulations.');
+        });
+
+        document.getElementById('share-btn').addEventListener('click', () => {
+            const shareLink = "https://educonnect-pro.com/classroom/WEB2023";
+            alert(`Share Link Generated!\n\n${shareLink}\n\nThis link has been copied to your clipboard. Share it with students to join this classroom.`);
+            // In a real app, this would use the Clipboard API
+        });
+
+        // --- Classroom Management ---
+        function createNewClassroom() {
+            const classroomName = prompt("Enter classroom name:");
+            if (classroomName) {
+                // Generate a random classroom code
+                const code = 'CLS' + Math.floor(1000 + Math.random() * 9000);
+                
+                // In a real app, this would make an API call to create the classroom
+                alert(`Classroom "${classroomName}" created successfully!\n\nClassroom Code: ${code}\n\nShare this code with students to join.`);
+                
+                // Add to classroom grid
+                populateClassroomGrid();
+                showPage('classroom-selection-page');
+            }
+        }
+
+        function populateClassroomGrid() {
+            const classroomGrid = document.querySelector('.classroom-grid');
+            
+            // Sample classrooms data - in a real app, this would come from an API
+            const classrooms = [
+                { id: 1, name: "Advanced Web Development", code: "WEB2023", participants: 24, resources: 5, teacher: "Dr. Smith" },
+                { id: 2, name: "Data Science Fundamentals", code: "DATA101", participants: 18, resources: 3, teacher: "Prof. Johnson" },
+                { id: 3, name: "Digital Marketing Strategies", code: "MKT2023", participants: 32, resources: 7, teacher: "Ms. Williams" },
+                { id: 4, name: "Mobile App Development", code: "MOB2023", participants: 15, resources: 4, teacher: "Mr. Brown" }
+            ];
+            
+            classroomGrid.innerHTML = '';
+            
+            classrooms.forEach(classroom => {
+                const card = document.createElement('div');
+                card.className = 'classroom-card';
+                card.innerHTML = `
+                    <div class="classroom-card-header">
+                        <div class="classroom-card-title">${classroom.name}</div>
+                        <div class="classroom-card-code">${classroom.code}</div>
+                    </div>
+                    <div class="classroom-card-info">
+                        <div><i class="fas fa-users"></i> ${classroom.participants} participants</div>
+                        <div><i class="fas fa-file"></i> ${classroom.resources} resources</div>
+                    </div>
+                    <div class="classroom-card-teacher">Teacher: ${classroom.teacher}</div>
+                    <div class="classroom-card-actions">
+                        <button class="btn-primary join-classroom" data-id="${classroom.id}">Enter Classroom</button>
+                        <button class="btn-secondary manage-classroom" data-id="${classroom.id}">Manage</button>
+                    </div>
+                `;
+                classroomGrid.appendChild(card);
+            });
+            
+            // Add event listeners to the join buttons
+            document.querySelectorAll('.join-classroom').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const classroomId = e.target.dataset.id;
+                    // In a real app, this would fetch classroom data and then enter
+                    enterClassroom(classroomId);
+                });
+            });
+        }
+
+        function enterClassroom(classroomId) {
+            // In a real app, this would fetch the specific classroom data
+            // For now, we'll just show the classroom page
+            showPage('classroom-page');
+            
+            // Populate participants list
+            const participantsList = document.getElementById('participants-list');
+            participantsList.innerHTML = '';
+            
+            // Sample participants - in a real app, this would come from an API
+            const participants = [
+                { name: "John Smith", role: "Teacher", initial: "JS" },
+                { name: "Emma Johnson", role: "Student", initial: "EJ" },
+                { name: "Michael Brown", role: "Student", initial: "MB" },
+                { name: "Sarah Davis", role: "Student", initial: "SD" },
+                { name: "Robert Wilson", role: "Student", initial: "RW" }
+            ];
+            
+            participants.forEach(participant => {
+                const item = document.createElement('li');
+                item.className = 'user-item';
+                item.innerHTML = `
+                    <div class="user-avatar-small">${participant.initial}</div>
+                    <div class="user-name">${participant.name}</div>
+                    <div class="user-role">${participant.role}</div>
+                `;
+                participantsList.appendChild(item);
+            });
+            
+            // Populate chat messages
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            
+            // Sample messages - in a real app, this would come from an API
+            const messages = [
+                { sender: "John Smith", text: "Welcome everyone to today's class!" },
+                { sender: "Emma Johnson", text: "Good morning, Professor!" },
+                { sender: "Michael Brown", text: "I have a question about the assignment." }
+            ];
+            
+            messages.forEach(message => {
+                const msgElement = document.createElement('div');
+                msgElement.className = 'message';
+                msgElement.innerHTML = `
+                    <div class="message-sender">${message.sender}:</div>
+                    <div>${message.text}</div>
+                `;
+                chatMessages.appendChild(msgElement);
+            });
+            
+            // Scroll to bottom of chat
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Send message functionality
+        document.getElementById('send-message').addEventListener('click', () => {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            
+            if (message) {
+                const chatMessages = document.getElementById('chat-messages');
+                const msgElement = document.createElement('div');
+                msgElement.className = 'message';
+                msgElement.innerHTML = `
+                    <div class="message-sender">You:</div>
+                    <div>${message}</div>
+                `;
+                chatMessages.appendChild(msgElement);
+                
+                // Clear input and scroll to bottom
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // In a real app, this would send the message to other participants
+            }
+        });
+
+        // Allow sending message with Enter key
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('send-message').click();
+            }
+        });
+
+        // Initialize the app
+        populateClassroomGrid();
+    </script>
+
+</body>
+</html>

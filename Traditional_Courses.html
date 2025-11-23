@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduWeb - Online Courses</title>
+    <style>
+        :root {
+            --primary-color: hsl(170, 75%, 41%);
+            --primary-dark: hsl(170, 75%, 35%);
+            --primary-light: hsl(170, 75%, 85%);
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --light-text: #666666;
+            --border-color: #e1e5eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-bg);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .search-bar {
+            display: flex;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px 0 0 50px;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            background-color: white;
+            outline: none;
+        }
+
+        .search-bar button {
+            padding: 0 1.5rem;
+            border-radius: 0 50px 50px 0;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 0 15px rgba(26, 188, 156, 0.5);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.4);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 15px rgba(26, 188, 156, 0.3);
+        }
+
+        /* Main Content */
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            background-color: white;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.3);
+        }
+
+        /* Courses Grid */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .course-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid var(--border-color);
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-image-container {
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .course-card:hover .course-image {
+            transform: scale(1.05);
+        }
+
+        .course-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-category {
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+            color: var(--text-color);
+        }
+
+        .course-description {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 1.2rem;
+            flex: 1;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .course-instructor {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .instructor-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .instructor-name {
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .price {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-right: auto;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 5px;
+        }
+
+        .btn-content {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-content:hover {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.3);
+        }
+
+        /* Playlist Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .playlist-items {
+            margin-top: 1.5rem;
+        }
+
+        .playlist-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .playlist-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .playlist-item-number {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .playlist-item-title {
+            flex: 1;
+        }
+
+        .playlist-item-duration {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .search-bar {
+                max-width: 100%;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .course-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .price {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="index.html" class="logo">
+            <i class="fas fa-graduation-cap logo-icon"></i>
+            EduWeb
+        </a>
+        
+        <div class="search-bar">
+            <input type="text" placeholder="Search courses...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1 class="page-title">Explore Our Courses</h1>
+        
+        <div class="filters">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Web Development</button>
+            <button class="filter-btn">Programming</button>
+            <button class="filter-btn">Data Science</button>
+            <button class="filter-btn">Design</button>
+            <button class="filter-btn">Business</button>
+            <button class="filter-btn">Science</button>
+        </div>
+        
+        <div class="courses-grid" id="coursesGrid">
+            <!-- Courses will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Playlist Modal -->
+    <div class="modal" id="playlistModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h3 class="modal-title" id="modalTitle">Course Content</h3>
+            <div class="playlist-items" id="playlistItems">
+                <!-- Playlist items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Course data with 25 courses
+        const courses = [
+            {
+                id: 1,
+                title: "Modern JavaScript Development",
+                category: "Web Development",
+                instructor: "Sarah Johnson",
+                hours: 18,
+                videos: 24,
+                description: "Master JavaScript ES6+ features, async programming, and modern tooling to build scalable applications.",
+                image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a",
+                price: "Rs.2199/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
+                badge: "Popular",
+                playlist: [
+                    { title: "Introduction to Modern JavaScript", duration: "25:30" },
+                    { title: "ES6+ Features Overview", duration: "32:45" },
+                    { title: "Arrow Functions & This Keyword", duration: "18:20" },
+                    { title: "Destructuring & Spread Operator", duration: "25:10" },
+                    { title: "Promises & Async/Await", duration: "30:15" },
+                    { title: "Modules & Import/Export", duration: "28:40" },
+                    { title: "Functional Programming", duration: "35:25" },
+                    { title: "Error Handling", duration: "22:10" },
+                    { title: "Working with APIs", duration: "28:55" },
+                    { title: "Building a Project", duration: "45:00" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Complete React Bootcamp",
+                category: "Web Development",
+                instructor: "Mike Chen",
+                hours: 30,
+                videos: 42,
+                description: "Learn React from scratch including hooks, context API, and advanced state management patterns.",
+                image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee",
+                price: "Rs.1999/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/32.jpg",
+                badge: "Bestseller",
+                playlist: [
+                    { title: "React Introduction", duration: "20:30" },
+                    { title: "JSX Fundamentals", duration: "25:45" },
+                    { title: "Components & Props", duration: "32:20" },
+                    { title: "State & Lifecycle", duration: "35:10" },
+                    { title: "Hooks Overview", duration: "30:15" },
+                    { title: "useState & useEffect", duration: "48:40" },
+                    { title: "Context API", duration: "35:25" },
+                    { title: "React Router", duration: "42:10" },
+                    { title: "Performance Optimization", duration: "38:55" },
+                    { title: "Final Project", duration: "65:00" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Node.js & Express Mastery",
+                category: "Backend",
+                instructor: "David Kim",
+                hours: 22,
+                videos: 28,
+                description: "Build robust backend services with Node.js, Express, and MongoDB with authentication and security.",
+                image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
+                price: "Rs.1899/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/75.jpg",
+                playlist: [
+                    { title: "Node.js Basics", duration: "25:30" },
+                    { title: "NPM & Modules", duration: "22:45" },
+                    { title: "Express Framework", duration: "28:20" },
+                    { title: "Middleware Concepts", duration: "25:10" },
+                    { title: "Routing & Controllers", duration: "30:15" },
+                    { title: "Error Handling", duration: "28:40" },
+                    { title: "Authentication", duration: "35:25" },
+                    { title: "Database Integration", duration: "42:10" },
+                    { title: "API Security", duration: "28:55" },
+                    { title: "Deployment", duration: "35:00" }
+                ]
+            },
+            {
+                id: 4,
+                title: "Python for Data Science",
+                category: "Data Science",
+                instructor: "Emily Wilson",
+                hours: 25,
+                videos: 35,
+                description: "Learn Python for data analysis, visualization, and machine learning with real-world projects.",
+                image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+                price: "Rs.3599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/women/63.jpg",
+                badge: "Hot",
+                playlist: [
+                    { title: "Python Basics", duration: "25:30" },
+                    { title: "NumPy Fundamentals", duration: "32:45" },
+                    { title: "Pandas Introduction", duration: "28:20" },
+                    { title: "Data Cleaning", duration: "35:10" },
+                    { title: "Data Visualization", duration: "30:15" },
+                    { title: "Statistical Analysis", duration: "28:40" },
+                    { title: "Machine Learning Intro", duration: "35:25" },
+                    { title: "Scikit-learn", duration: "42:10" },
+                    { title: "Model Evaluation", duration: "28:55" },
+                    { title: "Final Project", duration: "45:00" }
+                ]
+            },
+            {
+                id: 5,
+                title: "Advanced CSS & Sass",
+                category: "Web Development",
+                instructor: "Alex Rodriguez",
+                hours: 15,
+                videos: 20,
+                description: "Master modern CSS techniques including Flexbox, Grid, animations and Sass architecture.",
+                image: "https://images.unsplash.com/photo-1547658719-da2b51169166",
+                price: "Rs.6899/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/46.jpg",
+                playlist: [
+                    { title: "CSS Fundamentals", duration: "25:30" },
+                    { title: "Flexbox Deep Dive", duration: "32:45" },
+                    { title: "CSS Grid", duration: "28:20" },
+                    { title: "Responsive Design", duration: "35:10" },
+                    { title: "Transitions & Animations", duration: "30:15" },
+                    { title: "Sass Basics", duration: "28:40" },
+                    { title: "Sass Functions", duration: "35:25" },
+                    { title: "BEM Methodology", duration: "42:10" },
+                    { title: "CSS Architecture", duration: "28:55" },
+                    { title: "Final Project", duration: "45:00" }
+                ]
+            },
+            {
+                id: 6,
+                title: "MongoDB Complete Guide",
+                category: "Database",
+                instructor: "Lisa Wong",
+                hours: 12,
+                videos: 18,
+                description: "Learn NoSQL database design, queries, indexing and aggregation with MongoDB.",
+                image: "./images/mongodb.avif",
+                price: "Rs.4599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/women/28.jpg",
+                playlist: [
+                    { title: "NoSQL Concepts", duration: "25:30" },
+                    { title: "MongoDB Setup", duration: "22:45" },
+                    { title: "CRUD Operations", duration: "28:20" },
+                    { title: "Querying Data", duration: "25:10" },
+                    { title: "Indexes", duration: "30:15" },
+                    { title: "Aggregation", duration: "28:40" },
+                    { title: "Data Modeling", duration: "35:25" },
+                    { title: "Performance", duration: "22:10" },
+                    { title: "Security", duration: "28:55" },
+                    { title: "Integration", duration: "35:00" }
+                ]
+            },
+            {
+                id: 7,
+                title: "Docker & Kubernetes",
+                category: "DevOps",
+                instructor: "Robert Smith",
+                hours: 20,
+                videos: 26,
+                description: "Containerize applications with Docker and orchestrate with Kubernetes in production environments.",
+                image: "./images/docker.png",
+                price: "Rs.4999/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/22.jpg",
+                badge: "New",
+                playlist: [
+                    { title: "Containerization Basics", duration: "25:30" },
+                    { title: "Docker Fundamentals", duration: "32:45" },
+                    { title: "Docker Images", duration: "28:20" },
+                    { title: "Docker Compose", duration: "35:10" },
+                    { title: "Kubernetes Intro", duration: "30:15" },
+                    { title: "Pods & Deployments", duration: "28:40" },
+                    { title: "Services & Networking", duration: "35:25" },
+                    { title: "Scaling Applications", duration: "42:10" },
+                    { title: "Monitoring", duration: "28:55" },
+                    { title: "CI/CD Pipelines", duration: "45:00" }
+                ]
+            },
+            {
+                id: 8,
+                title: "Modern PHP Development",
+                category: "Backend",
+                instructor: "Jamie Patel",
+                hours: 16,
+                videos: 22,
+                description: "Build modern PHP applications with Laravel, authentication, APIs and testing.",
+                image: "https://images.unsplash.com/photo-1600132806370-bf17e65e942f",
+                price: "Rs.7400/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/women/35.jpg",
+                playlist: [
+                    { title: "PHP Basics", duration: "25:30" },
+                    { title: "OOP in PHP", duration: "22:45" },
+                    { title: "Composer", duration: "28:20" },
+                    { title: "Laravel Setup", duration: "25:10" },
+                    { title: "Eloquent ORM", duration: "30:15" },
+                    { title: "Authentication", duration: "28:40" },
+                    { title: "API Development", duration: "35:25" },
+                    { title: "Testing", duration: "22:10" },
+                    { title: "Deployment", duration: "28:55" },
+                    { title: "Performance", duration: "35:00" }
+                ]
+            },
+            {
+                id: 9,
+                title: "Machine Learning Fundamentals",
+                category: "Data Science",
+                instructor: "Dr. Alan Turing",
+                hours: 35,
+                videos: 45,
+                description: "Introduction to machine learning algorithms, model training and evaluation techniques.",
+                image: "https://images.unsplash.com/photo-1504639725590-34d0984388bd",
+                price: "Rs.2800/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/65.jpg",
+                badge: "Advanced",
+                playlist: [
+                    { title: "ML Introduction", duration: "25:30" },
+                    { title: "Supervised Learning", duration: "32:45" },
+                    { title: "Unsupervised Learning", duration: "28:20" },
+                    { title: "Linear Regression", duration: "35:10" },
+                    { title: "Logistic Regression", duration: "30:15" },
+                    { title: "Decision Trees", duration: "28:40" },
+                    { title: "Neural Networks", duration: "35:25" },
+                    { title: "Model Evaluation", duration: "42:10" },
+                    { title: "Feature Engineering", duration: "28:55" },
+                    { title: "Final Project", duration: "45:00" }
+                ]
+            },
+            {
+                id: 10,
+                title: "GraphQL API Development",
+                category: "Backend",
+                instructor: "Sophia Lee",
+                hours: 14,
+                videos: 18,
+                description: "Build flexible APIs with GraphQL, Apollo Server and integrate with React frontends.",
+                image: "https://images.unsplash.com/photo-1620067925093-801122ac1408",
+                price: "Rs.1599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/women/51.jpg",
+                playlist: [
+                    { title: "GraphQL Basics", duration: "25:30" },
+                    { title: "Schema Design", duration: "22:45" },
+                    { title: "Queries & Mutations", duration: "28:20" },
+                    { title: "Resolvers", duration: "25:10" },
+                    { title: "Apollo Server", duration: "30:15" },
+                    { title: "Authentication", duration: "28:40" },
+                    { title: "Error Handling", duration: "35:25" },
+                    { title: "Performance", duration: "22:10" },
+                    { title: "React Integration", duration: "28:55" },
+                    { title: "Deployment", duration: "35:00" }
+                ]
+            },
+            {
+                id: 11,
+                title: "Flutter Mobile Development",
+                category: "Mobile",
+                instructor: "Carlos Mendez",
+                hours: 28,
+                videos: 36,
+                description: "Build cross-platform mobile apps with Flutter and Dart with Firebase backend integration.",
+                image: "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+                price: "Rs.7999/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/43.jpg",
+                badge: "Hot",
+                playlist: [
+                    { title: "Flutter Intro", duration: "25:30" },
+                    { title: "Dart Basics", duration: "32:45" },
+                    { title: "Widgets", duration: "28:20" },
+                    { title: "State Management", duration: "35:10" },
+                    { title: "Navigation", duration: "30:15" },
+                    { title: "Firebase Integration", duration: "28:40" },
+                    { title: "Animations", duration: "35:25" },
+                    { title: "Testing", duration: "42:10" },
+                    { title: "Deployment", duration: "28:55" },
+                    { title: "App Store", duration: "45:00" }
+                ]
+            },
+            {
+                id: 12,
+                title: "AWS Certified Solutions Architect",
+                category: "Cloud",
+                instructor: "Priya Gupta",
+                hours: 40,
+                videos: 52,
+                description: "Prepare for AWS certification with hands-on labs and real-world architecture scenarios.",
+                image: "https://images.unsplash.com/photo-1620287341710-ff9a7f9755a5",
+                price: "Rs.1299/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/women/47.jpg",
+                badge: "Certification",
+                playlist: [
+                    { title: "Cloud Concepts", duration: "25:30" },
+                    { title: "IAM", duration: "32:45" },
+                    { title: "EC2", duration: "28:20" },
+                    { title: "S3", duration: "35:10" },
+                    { title: "VPC", duration: "30:15" },
+                    { title: "RDS", duration: "28:40" },
+                    { title: "Lambda", duration: "35:25" },
+                    { title: "Security", duration: "42:10" },
+                    { title: "Architecture", duration: "28:55" },
+                    { title: "Exam Prep", duration: "45:00" }
+                ]
+            },
+            {
+                id: 13,
+                title: "Quantum Physics Basics",
+                category: "Science",
+                instructor: "Dr. Neil Bohr",
+                hours: 25,
+                videos: 30,
+                description: "Introduction to quantum mechanics principles, wave functions and particle duality.",
+                image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d",
+                price: "Rs.8999/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/88.jpg",
+                playlist: [
+                    { title: "Quantum Intro", duration: "25:30" },
+                    { title: "Wave-Particle Duality", duration: "32:45" },
+                    { title: "Schrödinger Equation", duration: "28:20" },
+                    { title: "Quantum States", duration: "35:10" },
+                    { title: "Uncertainty Principle", duration: "30:15" },
+                    { title: "Quantum Entanglement", duration: "28:40" },
+                    { title: "Quantum Computing", duration: "35:25" },
+                    { title: "Applications", duration: "42:10" },
+                    { title: "Recent Advances", duration: "28:55" },
+                    { title: "Future of Quantum", duration: "45:00" }
+                ]
+            },
+            {
+                id: 14,
+                title: "UX/UI Design Masterclass",
+                category: "Design",
+                instructor: "Olivia Chen",
+                hours: 22,
+                videos: 28,
+                description: "Learn user experience principles, prototyping and UI design with Figma and Adobe XD.",
+                image: "https://images.unsplash.com/photo-1541462608143-67571c6738dd",
+                price: "Rs.5699/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/women/33.jpg",
+                badge: "Popular",
+                playlist: [
+                    { title: "Design Thinking", duration: "25:30" },
+                    { title: "User Research", duration: "32:45" },
+                    { title: "Wireframing", duration: "28:20" },
+                    { title: "Prototyping", duration: "35:10" },
+                    { title: "Color Theory", duration: "30:15" },
+                    { title: "Typography", duration: "28:40" },
+                    { title: "Figma Basics", duration: "35:25" },
+                    { title: "Advanced Figma", duration: "42:10" },
+                    { title: "Design Systems", duration: "28:55" },
+                    { title: "Portfolio", duration: "45:00" }
+                ]
+            },
+            {
+                id: 15,
+                title: "Blockchain Development",
+                category: "Programming",
+                instructor: "Vitalik Buterin",
+                hours: 30,
+                videos: 38,
+                description: "Build decentralized applications with Solidity, Ethereum and smart contract development.",
+                image: "https://images.unsplash.com/photo-1621570072262-4c02f63d2740",
+                price: "Rs.1099/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/77.jpg",
+                badge: "Trending",
+                playlist: [
+                    { title: "Blockchain Basics", duration: "25:30" },
+                    { title: "Cryptography", duration: "32:45" },
+                    { title: "Ethereum", duration: "28:20" },
+                    { title: "Solidity", duration: "35:10" },
+                    { title: "Smart Contracts", duration: "30:15" },
+                    { title: "Truffle Suite", duration: "28:40" },
+                    { title: "DApps", duration: "35:25" },
+                    { title: "Security", duration: "42:10" },
+                    { title: "DeFi", duration: "28:55" },
+                    { title: "NFTs", duration: "45:00" }
+                ]
+            },
+            {
+                id: 16,
+                title: "iOS Development with SwiftUI",
+                category: "Mobile",
+                instructor: "Tim Cook",
+                hours: 26,
+                videos: 34,
+                description: "Create beautiful iOS apps using SwiftUI framework and Apple's declarative syntax.",
+                image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/25.jpg",
+                playlist: [
+                    { title: "Swift Basics", duration: "25:30" },
+                    { title: "SwiftUI Intro", duration: "32:45" },
+                    { title: "Views & Controls", duration: "28:20" },
+                    { title: "State Management", duration: "35:10" },
+                    { title: "Navigation", duration: "30:15" },
+                    { title: "Animations", duration: "28:40" },
+                    { title: "Core Data", duration: "35:25" },
+                    { title: "Networking", duration: "42:10" },
+                    { title: "Testing", duration: "28:55" },
+                    { title: "App Store", duration: "45:00" }
+                ]
+            },
+            {
+                id: 17,
+                title: "DevOps with CI/CD Pipelines",
+                category: "DevOps",
+                instructor: "Jenkins Smith",
+                hours: 18,
+                videos: 24,
+                description: "Implement continuous integration and deployment with GitHub Actions, Jenkins and Docker.",
+                image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/55.jpg",
+                playlist: [
+                    { title: "CI/CD Concepts", duration: "25:30" },
+                    { title: "GitHub Actions", duration: "32:45" },
+                    { title: "Jenkins", duration: "28:20" },
+                    { title: "Docker", duration: "35:10" },
+                    { title: "Kubernetes", duration: "30:15" },
+                    { title: "Testing", duration: "28:40" },
+                    { title: "Monitoring", duration: "35:25" },
+                    { title: "Security", duration: "42:10" },
+                    { title: "Best Practices", duration: "28:55" },
+                    { title: "Case Studies", duration: "45:00" }
+                ]
+            },
+            {
+                id: 18,
+                title: "Advanced Algorithms",
+                category: "Computer Science",
+                instructor: "Dr. Donald Knuth",
+                hours: 35,
+                videos: 42,
+                description: "Master algorithm design, analysis and optimization techniques for coding interviews.",
+                image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/90.jpg",
+                badge: "Advanced",
+                playlist: [
+                    { title: "Complexity Analysis", duration: "25:30" },
+                    { title: "Sorting Algorithms", duration: "32:45" },
+                    { title: "Searching", duration: "28:20" },
+                    { title: "Dynamic Programming", duration: "35:10" },
+                    { title: "Graph Algorithms", duration: "30:15" },
+                    { title: "Greedy Algorithms", duration: "28:40" },
+                    { title: "Backtracking", duration: "35:25" },
+                    { title: "Divide & Conquer", duration: "42:10" },
+                    { title: "Problem Solving", duration: "28:55" },
+                    { title: "Interview Prep", duration: "45:00" }
+                ]
+            },
+            {
+                id: 19,
+                title: "Rust Programming",
+                category: "Programming",
+                instructor: "Graydon Hoare",
+                hours: 20,
+                videos: 26,
+                description: "Learn Rust programming language with memory safety, concurrency and performance focus.",
+                image: "/images/aws.png",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/60.jpg",
+                badge: "New",
+                playlist: [
+                    { title: "Rust Basics", duration: "25:30" },
+                    { title: "Ownership", duration: "32:45" },
+                    { title: "Structs & Enums", duration: "28:20" },
+                    { title: "Error Handling", duration: "35:10" },
+                    { title: "Generics", duration: "30:15" },
+                    { title: "Traits", duration: "28:40" },
+                    { title: "Concurrency", duration: "35:25" },
+                    { title: "Testing", duration: "42:10" },
+                    { title: "Performance", duration: "28:55" },
+                    { title: "Final Project", duration: "45:00" }
+                ]
+            },
+            {
+                id: 20,
+                title: "Digital Marketing Strategy",
+                category: "Business",
+                instructor: "Gary Vaynerchuk",
+                hours: 15,
+                videos: 20,
+                description: "Develop comprehensive digital marketing campaigns across social media and search platforms.",
+                image: "https://images.unsplash.com/photo-1551434678-e076c223a692",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/15.jpg",
+                playlist: [
+                    { title: "Marketing Fundamentals", duration: "25:30" },
+                    { title: "SEO", duration: "32:45" },
+                    { title: "Content Marketing", duration: "28:20" },
+                    { title: "Social Media", duration: "35:10" },
+                    { title: "Email Marketing", duration: "30:15" },
+                    { title: "PPC Advertising", duration: "28:40" },
+                    { title: "Analytics", duration: "35:25" },
+                    { title: "Conversion", duration: "42:10" },
+                    { title: "Strategy", duration: "28:55" },
+                    { title: "Case Studies", duration: "45:00" }
+                ]
+            },
+            {
+                id: 21,
+                title: "Game Development with Unity",
+                category: "Game Dev",
+                instructor: "John Carmack",
+                hours: 32,
+                videos: 40,
+                description: "Create 3D games with Unity engine, C# scripting and physics simulations.",
+                image: "https://images.unsplash.com/photo-1551103782-8ab07afd45c1",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/70.jpg",
+                badge: "Popular",
+                playlist: [
+                    { title: "Unity Basics", duration: "25:30" },
+                    { title: "C# Scripting", duration: "32:45" },
+                    { title: "Game Objects", duration: "28:20" },
+                    { title: "Physics", duration: "35:10" },
+                    { title: "Animation", duration: "30:15" },
+                    { title: "UI System", duration: "28:40" },
+                    { title: "Audio", duration: "35:25" },
+                    { title: "AI", duration: "42:10" },
+                    { title: "Optimization", duration: "28:55" },
+                    { title: "Publishing", duration: "45:00" }
+                ]
+            },
+            {
+                id: 22,
+                title: "Cybersecurity Fundamentals",
+                category: "Security",
+                instructor: "Kevin Mitnick",
+                hours: 25,
+                videos: 32,
+                description: "Learn essential cybersecurity principles, ethical hacking and defense strategies.",
+                image: "https://images.unsplash.com/photo-1563986768609-322da13575f3",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/80.jpg",
+                playlist: [
+                    { title: "Security Basics", duration: "25:30" },
+                    { title: "Threat Landscape", duration: "32:45" },
+                    { title: "Encryption", duration: "28:20" },
+                    { title: "Network Security", duration: "35:10" },
+                    { title: "Web Security", duration: "30:15" },
+                    { title: "Ethical Hacking", duration: "28:40" },
+                    { title: "Incident Response", duration: "35:25" },
+                    { title: "Compliance", duration: "42:10" },
+                    { title: "Forensics", duration: "28:55" },
+                    { title: "Career Path", duration: "45:00" }
+                ]
+            },
+            {
+                id: 23,
+                title: "TensorFlow for Deep Learning",
+                category: "AI",
+                instructor: "Andrew Ng",
+                hours: 28,
+                videos: 36,
+                description: "Build neural networks with TensorFlow and Keras for image and text processing.",
+                image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/85.jpg",
+                badge: "Advanced",
+                playlist: [
+                    { title: "Neural Networks", duration: "25:30" },
+                    { title: "TensorFlow Basics", duration: "32:45" },
+                    { title: "CNNs", duration: "28:20" },
+                    { title: "RNNs", duration: "35:10" },
+                    { title: "Transfer Learning", duration: "30:15" },
+                    { title: "NLP", duration: "28:40" },
+                    { title: "GANs", duration: "35:25" },
+                    { title: "Deployment", duration: "42:10" },
+                    { title: "Optimization", duration: "28:55" },
+                    { title: "Case Studies", duration: "45:00" }
+                ]
+            },
+            {
+                id: 24,
+                title: "Vue.js 3 Masterclass",
+                category: "Web Development",
+                instructor: "Evan You",
+                hours: 18,
+                videos: 24,
+                description: "Build reactive applications with Vue 3 Composition API, Pinia and Vue Router.",
+                image: "https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0",
+                price: "Rs.8599/-",
+                instructorAvatar: "https://randomuser.me/api/portraits/men/28.jpg",
+                playlist: [
+                    { title: "Vue Basics", duration: "25:30" },
+                    { title: "Components", duration: "32:45" },
+                    { title: "Composition API", duration: "28:20" },
+                    { title: "State Management", duration: "35:10" },
+                    { title: "Routing", duration: "30:15" },
+                    { title: "Forms", duration: "28:40" },
+                    { title: "Testing", duration: "35:25" },
+                    { title: "Performance", duration: "42:10" },
+                    { title: "Deployment", duration: "28:55" },
+                    { title: "Final Project", duration: "45:00" }
+                ]
+            },
+        ];
+
+        // DOM Elements
+        const coursesGrid = document.getElementById('coursesGrid');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const playlistModal = document.getElementById('playlistModal');
+        const closeModal = document.getElementById('closeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const playlistItems = document.getElementById('playlistItems');
+
+        // Render courses
+        function renderCourses(filter = 'All') {
+            coursesGrid.innerHTML = '';
+            
+            const filteredCourses = filter === 'All' 
+                ? courses 
+                : courses.filter(course => course.category.includes(filter));
+            
+            filteredCourses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card';
+                
+                courseCard.innerHTML = `
+                    <div class="course-image-container">
+                        <img src="${course.image}" alt="${course.title}" class="course-image">
+                        ${course.badge ? `<span class="course-badge">${course.badge}</span>` : ''}
+                    </div>
+                    <div class="course-content">
+                        <span class="course-category">${course.category}</span>
+                        <h3 class="course-title">${course.title}</h3>
+                        <p class="course-description">${course.description}</p>
+                        
+                        <div class="course-meta">
+                            <span class="meta-item"><i class="far fa-clock"></i> ${course.hours} hours</span>
+                            <span class="meta-item"><i class="fas fa-play-circle"></i> ${course.videos} videos</span>
+                        </div>
+                        
+                        <div class="course-instructor">
+                            <img src="${course.instructorAvatar}" alt="${course.instructor}" class="instructor-avatar">
+                            <span class="instructor-name">${course.instructor}</span>
+                        </div>
+                        
+                        <div class="course-actions">
+                            <span class="price">${course.price}</span>
+                            <button class="btn btn-primary btn-sm enroll-btn">Enroll Now</button>
+                            <button class="btn btn-content btn-sm content-btn">Content</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add event listeners to the buttons
+                const enrollBtn = courseCard.querySelector('.enroll-btn');
+                const contentBtn = courseCard.querySelector('.content-btn');
+                
+                enrollBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    // Redirect to pay.html with course details as query parameters
+    window.location.href = `Payment.html?courseId=${course.id}&title=${encodeURIComponent(course.title)}&price=${encodeURIComponent(course.price)}`;
+});
+                
+                contentBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showPlaylist(course);
+                });
+                
+                coursesGrid.appendChild(courseCard);
+            });
+        }
+
+        // Show playlist modal
+        function showPlaylist(course) {
+            modalTitle.textContent = `${course.title} - Course Content`;
+            playlistItems.innerHTML = '';
+            
+            course.playlist.forEach((item, index) => {
+                const playlistItem = document.createElement('div');
+                playlistItem.className = 'playlist-item';
+                playlistItem.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <div class="playlist-item-number">${index + 1}</div>
+                        <div class="playlist-item-title">${item.title}</div>
+                    </div>
+                    <div class="playlist-item-duration">${item.duration}</div>
+                `;
+                playlistItems.appendChild(playlistItem);
+            });
+            
+            playlistModal.style.display = 'flex';
+        }
+
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            playlistModal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === playlistModal) {
+                playlistModal.style.display = 'none';
+            }
+        });
+
+        // Filter courses
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                renderCourses(button.textContent);
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.querySelector('.search-bar input');
+        const searchButton = document.querySelector('.search-bar button');
+        
+        searchButton.addEventListener('click', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            if (searchTerm) {
+                const filteredCourses = courses.filter(course => 
+                    course.title.toLowerCase().includes(searchTerm) || 
+                    course.category.toLowerCase().includes(searchTerm) ||
+                    course.instructor.toLowerCase().includes(searchTerm) ||
+                    course.description.toLowerCase().includes(searchTerm)
+                );
+                
+                if (filteredCourses.length > 0) {
+                    // Temporarily replace courses with filtered ones
+                    const originalCourses = [...courses];
+                    courses.length = 0;
+                    courses.push(...filteredCourses);
+                    renderCourses('All');
+                    
+                    // Restore original courses after a delay
+                    setTimeout(() => {
+                        courses.length = 0;
+                        courses.push(...originalCourses);
+                    }, 5000);
+                } else {
+                    alert('No courses found matching your search.');
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCourses();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <title>AI Course Recommender</title>
+    <style>
+        :root {
+            --primary-color: hsl(120, 60%, 40%);
+            --primary-dark: hsl(120, 60%, 30%);
+            --primary-light: hsl(120, 60%, 50%);
+            --secondary-color: hsl(170, 75%, 41%);
+            --light-bg: hsl(120, 30%, 95%);
+            --dark-text: hsl(0, 0%, 20%);
+            --light-text: hsl(0, 0%, 95%);
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+        }
+        
+        .form-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            background-color: var(--light-bg);
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .result-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .result-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .course-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .detail-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        
+        .detail-item strong {
+            color: var(--primary-dark);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        .purchase-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: hsl(120, 50%, 90%);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-dark);
+        }
+        
+        .purchase-info h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        .purchase-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .purchase-link {
+            padding: 8px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .purchase-link:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .form-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        #threejs-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body>
+    <div id="threejs-container"></div>
+    <div class="container">
+        <h1>AI Course Recommender</h1>
+        
+        <div class="form-section">
+            <div>
+                <div class="form-group">
+                    <label for="education-level">Education Level</label>
+                    <select id="education-level" required>
+                        <option value="" disabled selected>Select your education level</option>
+                        <option value="School">School (K-12)</option>
+                        <option value="College">College/University</option>
+                        <option value="Professional">Professional</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="knowledge">Current Knowledge Level</label>
+                    <select id="knowledge" required>
+                        <option value="" disabled selected>Select your level</option>
+                        <option value="Beginner">Beginner (0-1 years)</option>
+                        <option value="Intermediate">Intermediate (1-3 years)</option>
+                        <option value="Advanced">Advanced (3+ years)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="time-commitment">Weekly Time Commitment</label>
+                    <select id="time-commitment" required>
+                        <option value="" disabled selected>Select available time</option>
+                        <option value="Low">Low (1-5 hours)</option>
+                        <option value="Medium">Medium (5-10 hours)</option>
+                        <option value="High">High (10+ hours)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <div class="form-group">
+                    <label for="category">Learning Category</label>
+                    <select id="category" required>
+                        <option value="" disabled selected>Select your focus area</option>
+                        <option value="Data Science">Data Science/Analysis</option>
+                        <option value="Problem Solving">Problem Solving</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Machine Learning">Machine Learning</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Learning Style Preference</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="style" value="Visual" required> Visual
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="style" value="Auditory"> Auditory
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="style" value="Kinesthetic"> Hands-on
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="goal">Primary Learning Goal</label>
+                    <select id="goal" required>
+                        <option value="" disabled selected>Select your main goal</option>
+                        <option value="Career">Career Advancement</option>
+                        <option value="Academic">Academic Requirements</option>
+                        <option value="Personal">Personal Interest</option>
+                        <option value="Skill">Skill Development</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <button id="recommend-btn" type="button">Get Personalized Course Recommendation</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your learning profile...</p>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <p class="result-title">Your Optimal Learning Path:</p>
+            <p class="result-value" id="result-value"></p>
+            
+            <div class="course-details" id="course-details">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            
+            <div class="purchase-info" id="purchase-info">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Three.js Background Visualization
+const threejsContainer = document.getElementById('threejs-container');
+
+// Create scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+threejsContainer.appendChild(renderer.domElement);
+
+// Create floating course icons
+const geometry = new THREE.IcosahedronGeometry(0.5, 0);
+const material = new THREE.MeshBasicMaterial({ 
+    color: 0x4CAF50,
+    wireframe: true 
+});
+
+const icons = [];
+for (let i = 0; i < 15; i++) {
+    const icon = new THREE.Mesh(geometry, material.clone());
+    icon.position.x = Math.random() * 20 - 10;
+    icon.position.y = Math.random() * 20 - 10;
+    icon.position.z = Math.random() * 20 - 10;
+    icon.userData = {
+        speedX: Math.random() * 0.02 - 0.01,
+        speedY: Math.random() * 0.02 - 0.01,
+        speedZ: Math.random() * 0.02 - 0.01
+    };
+    scene.add(icon);
+    icons.push(icon);
+}
+
+camera.position.z = 5;
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    
+    icons.forEach(icon => {
+        icon.position.x += icon.userData.speedX;
+        icon.position.y += icon.userData.speedY;
+        icon.position.z += icon.userData.speedZ;
+        
+        // Bounce off boundaries
+        if (Math.abs(icon.position.x) > 10) icon.userData.speedX *= -1;
+        if (Math.abs(icon.position.y) > 10) icon.userData.speedY *= -1;
+        if (Math.abs(icon.position.z) > 10) icon.userData.speedZ *= -1;
+        
+        icon.rotation.x += 0.01;
+        icon.rotation.y += 0.01;
+    });
+    
+    renderer.render(scene, camera);
+}
+
+animate();
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+        // Simplified Course Recommender
+        class CourseRecommender {
+            constructor() {
+                this.courseDatabase = {
+                    "Basic Math Visual Course": {
+                        description: "Interactive visual course covering fundamental math concepts with animations and diagrams.",
+                        duration: "4 weeks",
+                        intensity: "Light",
+                        format: "Video lessons with interactive quizzes",
+                        price: "$49.99",
+                        providers: [
+                            { name: "Udemy", url: "https://www.udemy.com/courses/search/?q=basic+math+visual+course" },
+                            { name: "Coursera", url: "https://www.coursera.org/courses?query=basic%20math%20visual" }
+                        ]
+                    },
+                    "Hands-on Math Activities": {
+                        description: "Practical math learning through physical activities and real-world applications.",
+                        duration: "6 weeks",
+                        intensity: "Moderate",
+                        format: "Project-based with physical materials",
+                        price: "$79.99",
+                        providers: [
+                            { name: "Khan Academy", url: "https://www.khanacademy.org" },
+                            { name: "Mathnasium", url: "https://www.mathnasium.com" }
+                        ]
+                    },
+                    "Physics Visual Experiments": {
+                        description: "Learn physics principles through animated experiments and simulations.",
+                        duration: "8 weeks",
+                        intensity: "Moderate",
+                        format: "Interactive simulations with explanations",
+                        price: "$59.99",
+                        providers: [
+                            { name: "edX", url: "https://www.edx.org/course/physics-visual-experiments" },
+                            { name: "Brilliant", url: "https://brilliant.org/courses/physics/" }
+                        ]
+                    },
+                    "Coding Projects for Teens": {
+                        description: "Practical coding projects designed specifically for high school students.",
+                        duration: "10 weeks",
+                        intensity: "High",
+                        format: "Project-based with mentor support",
+                        price: "$199.99",
+                        providers: [
+                            { name: "Codecademy", url: "https://www.codecademy.com" },
+                            { name: "Tynker", url: "https://www.tynker.com" }
+                        ]
+                    },
+                    "Intro to Data Visualization": {
+                        description: "Fundamentals of data visualization using modern tools like Tableau and Python.",
+                        duration: "5 weeks",
+                        intensity: "Moderate",
+                        format: "Video lectures with hands-on exercises",
+                        price: "$99.99",
+                        providers: [
+                            { name: "DataCamp", url: "https://www.datacamp.com/courses/intro-to-data-visualization" },
+                            { name: "Udacity", url: "https://www.udacity.com/course/data-visualization-nanodegree" }
+                        ]
+                    },
+                    "ML Theory and Algorithms": {
+                        description: "Comprehensive coverage of machine learning algorithms with audio explanations.",
+                        duration: "12 weeks",
+                        intensity: "High",
+                        format: "Audio lectures with accompanying slides",
+                        price: "$149.99",
+                        providers: [
+                            { name: "Fast.ai", url: "https://course.fast.ai" },
+                            { name: "Stanford Online", url: "https://online.stanford.edu/courses/cs229-machine-learning" }
+                        ]
+                    },
+                    "Advanced Engineering Lab": {
+                        description: "Hands-on engineering projects with real-world applications.",
+                        duration: "15 weeks",
+                        intensity: "Very High",
+                        format: "Lab-based with team projects",
+                        price: "$299.99",
+                        providers: [
+                            { name: "MIT OpenCourseWare", url: "https://ocw.mit.edu/courses/engineering" },
+                            { name: "edX Engineering", url: "https://www.edx.org/learn/engineering" }
+                        ]
+                    },
+                    "Algorithm Visualization": {
+                        description: "Visual representations of common algorithms and data structures.",
+                        duration: "6 weeks",
+                        intensity: "Moderate",
+                        format: "Interactive visualizations with exercises",
+                        price: "$89.99",
+                        providers: [
+                            { name: "VisuAlgo", url: "https://visualgo.net" },
+                            { name: "LeetCode", url: "https://leetcode.com" }
+                        ]
+                    },
+                    "Coding Bootcamp Basics": {
+                        description: "Accelerated introduction to programming for career changers.",
+                        duration: "8 weeks",
+                        intensity: "High",
+                        format: "Intensive project-based learning",
+                        price: "$399.99",
+                        providers: [
+                            { name: "General Assembly", url: "https://generalassemb.ly" },
+                            { name: "Flatiron School", url: "https://flatironschool.com" }
+                        ]
+                    },
+                    "Data Analysis Workshop": {
+                        description: "Practical data analysis techniques using Python and R.",
+                        duration: "6 weeks",
+                        intensity: "Moderate",
+                        format: "Workshop-style with real datasets",
+                        price: "$129.99",
+                        providers: [
+                            { name: "DataQuest", url: "https://www.dataquest.io" },
+                            { name: "Kaggle Learn", url: "https://www.kaggle.com/learn" }
+                        ]
+                    },
+                    "ML Project Implementation": {
+                        description: "End-to-end machine learning project development.",
+                        duration: "10 weeks",
+                        intensity: "Very High",
+                        format: "Project-based with mentor guidance",
+                        price: "$249.99",
+                        providers: [
+                            { name: "Coursera ML", url: "https://www.coursera.org/learn/machine-learning" },
+                            { name: "Udacity AI", url: "https://www.udacity.com/course/ai-nanodegree" }
+                        ]
+                    },
+                    "Physics Podcast Series": {
+                        description: "Audio-based learning of physics concepts through engaging podcast episodes.",
+                        duration: "Self-paced",
+                        intensity: "Light",
+                        format: "Audio content with supplemental PDFs",
+                        price: "$29.99",
+                        providers: [
+                            { name: "Audible", url: "https://www.audible.com" },
+                            { name: "Podcast Platforms", url: "https://www.listennotes.com/search/?q=physics" }
+                        ]
+                    },
+                    "Advanced Math Visualizations": {
+                        description: "Complex mathematical concepts explained through advanced visualizations.",
+                        duration: "8 weeks",
+                        intensity: "High",
+                        format: "Interactive 3D visualizations",
+                        price: "$119.99",
+                        providers: [
+                            { name: "3Blue1Brown", url: "https://www.3blue1brown.com" },
+                            { name: "Wolfram U", url: "https://www.wolfram.com/wolfram-u" }
+                        ]
+                    },
+                    "Case Study Workshops": {
+                        description: "Practical problem-solving through real-world case studies.",
+                        duration: "5 weeks",
+                        intensity: "Moderate",
+                        format: "Workshop with group discussions",
+                        price: "$79.99",
+                        providers: [
+                            { name: "Harvard Case Studies", url: "https://hbsp.harvard.edu" },
+                            { name: "Case Centre", url: "https://www.thecasecentre.org" }
+                        ]
+                    }
+                };
+            }
+
+            // Simplified recommendation logic without ML
+            recommendCourse(education, knowledge, time, category, style, goal) {
+                // Simple decision tree for recommendations
+                if (education === "School") {
+                    if (category === "Mathematics") {
+                        return style === "Visual" ? "Basic Math Visual Course" : "Hands-on Math Activities";
+                    } else if (category === "Physics") {
+                        return "Physics Visual Experiments";
+                    } else if (category === "Programming") {
+                        return "Coding Projects for Teens";
+                    }
+                } else if (education === "College") {
+                    if (category === "Data Science") {
+                        return "Intro to Data Visualization";
+                    } else if (category === "Machine Learning") {
+                        return "ML Theory and Algorithms";
+                    } else if (category === "Engineering") {
+                        return "Advanced Engineering Lab";
+                    } else if (category === "Problem Solving") {
+                        return "Algorithm Visualization";
+                    }
+                } else if (education === "Professional") {
+                    if (category === "Programming") {
+                        return "Coding Bootcamp Basics";
+                    } else if (category === "Data Science") {
+                        return "Data Analysis Workshop";
+                    } else if (category === "Machine Learning") {
+                        return "ML Project Implementation";
+                    } else if (category === "Problem Solving") {
+                        return "Case Study Workshops";
+                    }
+                }
+
+                // Default fallback courses
+                if (style === "Visual") return "Advanced Math Visualizations";
+                if (style === "Auditory") return "Physics Podcast Series";
+                return "Case Study Workshops";
+            }
+
+            getCourseDetails(courseName) {
+                return this.courseDatabase[courseName] || {
+                    description: "Comprehensive course tailored to your specific needs.",
+                    duration: "Varies",
+                    intensity: "Moderate",
+                    format: "Mixed format",
+                    price: "$99.99",
+                    providers: [
+                        { name: "General Learning Platforms", url: "https://www.coursera.org" },
+                        { name: "Specialized Providers", url: "https://www.udemy.com" }
+                    ]
+                };
+            }
+        }
+
+        // Frontend Interaction
+        document.addEventListener('DOMContentLoaded', function() {
+            const recommender = new CourseRecommender();
+            const recommendBtn = document.getElementById('recommend-btn');
+            const loadingDiv = document.getElementById('loading');
+            const resultContainer = document.getElementById('result-container');
+            const resultValue = document.getElementById('result-value');
+            const courseDetails = document.getElementById('course-details');
+            const purchaseInfo = document.getElementById('purchase-info');
+
+            recommendBtn.addEventListener('click', function() {
+                // Get all input values
+                const educationLevel = document.getElementById('education-level').value;
+                const knowledge = document.getElementById('knowledge').value;
+                const timeCommitment = document.getElementById('time-commitment').value;
+                const category = document.getElementById('category').value;
+                const style = document.querySelector('input[name="style"]:checked')?.value;
+                const goal = document.getElementById('goal').value;
+                
+                // Validate inputs
+                if (!educationLevel || !knowledge || !timeCommitment || !category || !style || !goal) {
+                    alert('Please fill in all fields to get an accurate recommendation');
+                    return;
+                }
+                
+                // Show loading
+                loadingDiv.style.display = 'block';
+                resultContainer.style.display = 'none';
+                
+                // Get recommendation (with slight delay for UX)
+                setTimeout(() => {
+                    try {
+                        const recommendation = recommender.recommendCourse(
+                            educationLevel,
+                            knowledge,
+                            timeCommitment,
+                            category,
+                            style,
+                            goal
+                        );
+                        
+                        // Get course details
+                        const details = recommender.getCourseDetails(recommendation);
+                        
+                        // Display results
+                        resultValue.textContent = recommendation;
+                        
+                        // Populate course details
+                        courseDetails.innerHTML = `
+                            <div class="detail-item"><strong>Description:</strong> ${details.description}</div>
+                            <div class="detail-item"><strong>Duration:</strong> ${details.duration}</div>
+                            <div class="detail-item"><strong>Intensity:</strong> ${details.intensity}</div>
+                            <div class="detail-item"><strong>Format:</strong> ${details.format}</div>
+                            <div class="detail-item"><strong>Price:</strong> ${details.price}</div>
+                        `;
+                        
+                        // Populate purchase info
+                        let purchaseLinks = '';
+                        details.providers.forEach(provider => {
+                            purchaseLinks += `<a href="${provider.url}" target="_blank" class="purchase-link">Purchase on ${provider.name}</a>`;
+                        });
+                        
+                        purchaseInfo.innerHTML = `
+                            <h3>Where to Purchase This Course:</h3>
+                            <p>This course is available through the following platforms:</p>
+                            <div class="purchase-links">
+                                ${purchaseLinks}
+                            </div>
+                        `;
+                        
+                        // Show results
+                        resultContainer.style.display = 'block';
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while generating recommendation. Please try again.');
+                    } finally {
+                        loadingDiv.style.display = 'none';
+                    }
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>

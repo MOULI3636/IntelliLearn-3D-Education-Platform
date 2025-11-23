@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Course Finder</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f9f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        /* Main trigger button with intense glow */
+        .find-course-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #00e676, #00c853);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.7);
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .find-course-btn:hover {
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.9), 
+                        0 0 40px rgba(0, 230, 118, 0.5);
+            transform: translateY(-3px) scale(1.03);
+        }
+        
+        .find-course-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .find-course-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #00e676, #00c853, #00e676);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .find-course-btn:hover::before {
+            opacity: 1;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        /* Popup container with neon border */
+        .popup-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #f8fff8;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.5);
+            z-index: 1000;
+            border: 2px solid transparent;
+            animation: borderGlow 3s infinite alternate;
+        }
+        
+        @keyframes borderGlow {
+            0% { border-color: rgba(0, 230, 118, 0.3); }
+            100% { border-color: rgba(0, 230, 118, 0.8); }
+        }
+        
+        .popup-container h2 {
+            color: #007a3d;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            text-shadow: 0 0 5px rgba(0, 230, 118, 0.3);
+        }
+        
+        /* Glowing option buttons */
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            color: white;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.5);
+        }
+        
+        .option-btn.green {
+            background: linear-gradient(45deg, #00c853, #007a3d);
+        }
+        
+        .option-btn.pink {
+            background: linear-gradient(45deg, #ff4081, #c2185b);
+            box-shadow: 0 0 15px rgba(255, 64, 129, 0.5);
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px;
+        }
+        
+        .option-btn.green:hover {
+            box-shadow: 0 0 25px rgba(0, 230, 118, 0.8);
+        }
+        
+        .option-btn.pink:hover {
+            box-shadow: 0 0 25px rgba(255, 64, 129, 0.8);
+        }
+        
+        .option-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+            z-index: -1;
+        }
+        
+        .option-btn:hover::after {
+            transform: translateX(100%);
+        }
+        
+        /* Course list styling */
+        .course-list {
+            text-align: left;
+            margin: 25px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .course-item {
+            padding: 12px 15px;
+            margin: 10px 0;
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #00c853;
+        }
+        
+        .course-item:hover {
+            background-color: #c8e6c9;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0, 200, 83, 0.2);
+        }
+        
+        .course-item a {
+            color: #007a3d;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .course-item:hover a {
+            color: #004d29;
+        }
+        
+        /* Back button styling */
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #607d8b, #455a64);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(96, 125, 139, 0.5);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(96, 125, 139, 0.7);
+        }
+        
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main trigger button -->
+    <button class="find-course-btn" id="findCourseBtn">Find Course</button>
+    
+    <!-- Overlay -->
+ <div class="overlay" id="overlay"></div>
+    
+ <!-- Popup containers (all initially hidden) -->
+    <div class="popup-container" id="courseTypePopup">
+        <h2>Select Course Type</h2>
+        <button class="option-btn green" id="traditionalCoursesBtn" onclick="window.location.href='traditional.html'">Traditional Courses</button>
+        <button class="option-btn pink" id="iterativeCoursesBtn">Iterative Lab Courses</button>
+    </div>
+
+       <div id="popupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-80 text-center">
+            <h2 class="text-xl font-bold text-green-600 mb-4">Select a Course</h2>
+
+            <div class="flex flex-col gap-3">
+                <button class="bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Physics</button>
+                <button class="bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Chemistry</button>
+                <button class="bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">Biology</button>
+            </div>
+
+            <button class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                Close
+            </button>
+        </div>
+    </div>
+    
+    
+    <div class="popup-container" id="iterativeLevelPopup">
+        <h2>Select Level</h2>
+        <button class="option-btn green" id="schoolBtn">School</button>
+        <button class="option-btn pink" id="collegeBtn">College</button>
+        <button class="back-btn" id="backToTypeBtn">Back</button>
+    </div>
+    
+    <div class="popup-container" id="schoolCoursesPopup">
+        <h2>School Courses</h2>
+        <div class="course-list">
+            <div class="course-item"><a href="Visualization-3D/Physics.html">Physics Lab</a></div>
+            <div class="course-item"><a href="Visualization-3D/Chemical.html">Chemistry Lab</a></div>
+            <div class="course-item"><a href="Visualization-3D/ECE.html">Electrical Lab</a></div>
+            <div class="course-item"><a href="Visualization-3D/Math.html">3D Calculation</a></div>
+            <div class="course-item"><a href="Visualization-3D/BasicDSA.html">Basic Data Algorithm</a></div>
+            <div class="course-item"><a href="Visualization-3D/SystemArchitecture.html">System Architecture</a></div>
+        </div>
+        <button class="back-btn" id="backToLevelBtn1">Back</button>
+    </div>
+    
+    <div class="popup-container" id="collegeCoursesPopup">
+        <h2>College Courses</h2>
+        <div class="course-list">
+            <div class="course-item"><a href="Visualization-3D/DataScience.html">Data Visualization-3D</a></div>
+            <div class="course-item"><a href="Visualization-3D/ML3d.html">Virtual Machine Learning</a></div>
+            <div class="course-item"><a href="Visualization-3D/HigherDSA.html">Advanced Data Structure & Algorithms</a></div>
+            <div class="course-item"><a href="Visualization-3D/Math.html">3D Calculation</a></div>
+            <div class="course-item"><a href="Visualization-3D/BasicDSA.html">Robotics Algorithm</a></div>
+            <div class="course-item"><a href="Visualization-3D/SystemArchitecture.html">System Architecture</a></div>
+        </div>
+        <button class="back-btn" id="backToLevelBtn2">Back</button>
+    </div>
+    
+   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('overlay');
+    const courseTypePopup = document.getElementById('courseTypePopup');
+    const iterativeLevelPopup = document.getElementById('iterativeLevelPopup');
+    const schoolCoursesPopup = document.getElementById('schoolCoursesPopup');
+    const collegeCoursesPopup = document.getElementById('collegeCoursesPopup');
+
+    // Get the query parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const popupType = urlParams.get('popup'); 
+
+    // If "popup=coursetype" is in URL, open Course Type popup automatically
+    if (popupType === 'coursetype') {
+        overlay.style.display = 'block';
+        courseTypePopup.style.display = 'block';
+    }
+
+    // Find Course button (only works when clicked, not auto-triggered)
+    const findCourseBtn = document.getElementById('findCourseBtn');
+    if (findCourseBtn) {
+        findCourseBtn.addEventListener('click', function() {
+            overlay.style.display = 'block';
+            courseTypePopup.style.display = 'block';
+        });
+    }
+
+    // Button event listeners
+    // document.getElementById('traditionalCoursesBtn').addEventListener('click', function() {
+    //     window.location.href = "traditional-courses.html";
+    // });
+
+    document.getElementById('iterativeCoursesBtn').addEventListener('click', function() {
+        courseTypePopup.style.display = 'none';
+        iterativeLevelPopup.style.display = 'block';
+    });
+
+    document.getElementById('schoolBtn').addEventListener('click', function() {
+        iterativeLevelPopup.style.display = 'none';
+        schoolCoursesPopup.style.display = 'block';
+    });
+
+    document.getElementById('collegeBtn').addEventListener('click', function() {
+        iterativeLevelPopup.style.display = 'none';
+        collegeCoursesPopup.style.display = 'block';
+    });
+
+    document.getElementById('backToTypeBtn').addEventListener('click', function() {
+        iterativeLevelPopup.style.display = 'none';
+        courseTypePopup.style.display = 'block';
+    });
+
+    document.getElementById('backToLevelBtn1').addEventListener('click', function() {
+        schoolCoursesPopup.style.display = 'none';
+        iterativeLevelPopup.style.display = 'block';
+    });
+
+    document.getElementById('backToLevelBtn2').addEventListener('click', function() {
+        collegeCoursesPopup.style.display = 'none';
+        iterativeLevelPopup.style.display = 'block';
+    });
+
+    // Close popups when clicking the overlay
+    overlay.addEventListener('click', function() {
+        overlay.style.display = 'none';
+        courseTypePopup.style.display = 'none';
+        iterativeLevelPopup.style.display = 'none';
+        schoolCoursesPopup.style.display = 'none';
+        collegeCoursesPopup.style.display = 'none';
+    });
+});
+
+
+
+// Tranditional courses
+
+    // Get modal and button elements
+        const modal = document.getElementById("popupModal");
+        const btn = document.getElementById("traditionalCoursesBtn");
+
+        // Show modal when button is clicked
+        btn.addEventListener('click',function(e) {
+            modal.classList.remove("hidden");
+        })
+
+        // Close modal function
+        function closeModal() {
+            modal.classList.add("hidden");
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+   </script>
+</body>
+</html>
